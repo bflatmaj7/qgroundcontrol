@@ -20,7 +20,6 @@ import QtGraphicalEffects   1.0
 import QGroundControl               1.0
 import QGroundControl.Controls      1.0
 import QGroundControl.ScreenTools   1.0
-import QGroundControl.Palette       1.0
 
 Item {
     id: root
@@ -35,8 +34,6 @@ Item {
 
     width:  size
     height: size
-
-    QGCPalette { id: qgcPal; colorGroupEnabled: enabled }
 
     Item {
         id:             instrument
@@ -118,8 +115,8 @@ Item {
         anchors.fill:   parent
         radius:         width / 2
         color:          Qt.rgba(0,0,0,0)
-        border.color:   qgcPal.text
-        border.width:   1
+        border.color:   "black"
+        border.width:   2
     }
 
     QGCLabel {

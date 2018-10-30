@@ -159,8 +159,7 @@ Item {
         id:  mouseAreaComponent
 
         MouseArea {
-            anchors.fill:   map
-            z:              QGroundControl.zOrderMapItems + 1   // Over item indicators
+            anchors.fill: map
 
             onClicked: {
                 var coordinate = map.toCoordinate(Qt.point(mouse.x, mouse.y), false /* clipToViewPort */)
@@ -177,7 +176,6 @@ Item {
         id: loiterDragAreaComponent
 
         MissionItemIndicatorDrag {
-            mapControl:     _root.map
             itemIndicator:  _itemVisuals[_loiterPointIndex]
             itemCoordinate: _missionItem.loiterCoordinate
 
@@ -190,7 +188,6 @@ Item {
         id: landDragAreaComponent
 
         MissionItemIndicatorDrag {
-            mapControl:     _root.map
             itemIndicator:  _itemVisuals[_landPointIndex]
             itemCoordinate: _missionItem.landingCoordinate
 

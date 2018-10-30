@@ -26,8 +26,7 @@ Item {
     anchors.bottom: parent.bottom
     visible:        _activeVehicle ? _activeVehicle.supportsRadio : true
 
-    property var    _activeVehicle:     QGroundControl.multiVehicleManager.activeVehicle
-    property bool   _rcRSSIAvailable:   _activeVehicle ? _activeVehicle.rcRSSI > 0 && _activeVehicle.rcRSSI <= 100 : false
+    property var _activeVehicle: QGroundControl.multiVehicleManager.activeVehicle
 
     Component {
         id: rcRSSIInfo
@@ -55,7 +54,7 @@ Item {
 
                 GridLayout {
                     id:                 rcrssiGrid
-                    visible:            _rcRSSIAvailable
+                    visible:            _activeVehicle && _activeVehicle.rcRSSI != 255
                     anchors.margins:    ScreenTools.defaultFontPixelHeight
                     columnSpacing:      ScreenTools.defaultFontPixelWidth
                     columns:            2
@@ -87,14 +86,14 @@ Item {
             sourceSize.height:  height
             source:             "/qmlimages/RC.svg"
             fillMode:           Image.PreserveAspectFit
-            opacity:            _rcRSSIAvailable ? 1 : 0.5
+            opacity:            _activeVehicle ? (((_activeVehicle.rcRSSI < 0) || (_activeVehicle.rcRSSI > 100)) ? 0.5 : 1) : 0.5
             color:              qgcPal.buttonText
         }
 
         SignalStrength {
             anchors.verticalCenter: parent.verticalCenter
             size:                   parent.height * 0.5
-            percent:                _rcRSSIAvailable ? _activeVehicle.rcRSSI : 0
+            percent:                _activeVehicle ? ((_activeVehicle.rcRSSI > 100) ? 0 : _activeVehicle.rcRSSI) : 0
         }
     }
 

@@ -44,7 +44,7 @@ Item {
         } else if(ScreenTools.isHugeScreen) {
             return mainWindow.width * 0.11
         }
-        return ScreenTools.defaultFontPixelWidth * 30
+        return ScreenTools.defaultFontPixelWidth * 100
     }
 
     function _setInstrumentWidget() {
@@ -135,7 +135,7 @@ Item {
     Loader {
         id:                     instrumentsLoader
         anchors.margins:        ScreenTools.defaultFontPixelHeight / 2
-        anchors.right:          parent.right
+        anchors.horizontalCenter: parent.horizontalCenter
         z:                      QGroundControl.zOrderWidgets
         property var  qgcView:  _root.qgcView
         property real maxHeight:parent.height - (anchors.margins * 2)

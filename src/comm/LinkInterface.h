@@ -21,7 +21,7 @@
 
 #include "QGCMAVLink.h"
 #include "LinkConfiguration.h"
-#include "MavlinkMessagesTimer.h"
+#include "HeartbeatTimer.h"
 
 class LinkManager;
 
@@ -39,7 +39,7 @@ class LinkInterface : public QThread
 
 public:    
     virtual ~LinkInterface() {
-        stopMavlinkMessagesTimer();
+        stopHeartbeatTimer();
         _config->setLink(NULL);
     }
 
@@ -264,19 +264,19 @@ private:
     void _setMavlinkChannel(uint8_t channel);
     
     /**
-     * @brief startMavlinkMessagesTimer
+     * @brief startHeartbeatTimer
      *
-     * Start/restart the mavlink messages timer for the specific vehicle.
+     * Start/restart the heartbeat timer for the specific vehicle.
      * If no timer exists an instance is allocated.
      */
-    void startMavlinkMessagesTimer(int vehicle_id);
+    void startHeartbeatTimer(int vehicle_id);
 
     /**
-     * @brief stopMavlinkMessagesTimer
+     * @brief stopHeartbeatTimer
      *
-     * Stop and deallocate the mavlink messages timers for all vehicles if any exists.
+     * Stop and deallocate the heartbeat timers for all vehicles if any exists.
      */
-    void stopMavlinkMessagesTimer();
+    void stopHeartbeatTimer();
 
     bool _mavlinkChannelSet;    ///< true: _mavlinkChannel has been set
     uint8_t _mavlinkChannel;    ///< mavlink channel to use for this link, as used by mavlink_parse_char
@@ -303,7 +303,7 @@ private:
     bool _decodedFirstMavlinkPacket;    ///< true: link has correctly decoded it's first mavlink packet
     bool _isPX4Flow;
 
-    QMap<int /* vehicle id */, MavlinkMessagesTimer*> _mavlinkMessagesTimers;
+    QMap<int /* vehicle id */, HeartbeatTimer*> _heartbeatTimers;
 };
 
 typedef QSharedPointer<LinkInterface> SharedLinkInterfacePointer;

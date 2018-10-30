@@ -20,7 +20,6 @@ import QGroundControl.FlightMap     1.0
 
 /// Rally Point map visuals
 Item {
-    id: _root
     z: QGroundControl.zOrderMapItems
 
     property var    map
@@ -45,7 +44,6 @@ Item {
         id: dragAreaComponent
 
         MissionItemIndicatorDrag {
-            mapControl:     _root.map
             itemCoordinate: rallyPointObject.coordinate
             visible:        rallyPointObject === myRallyPointController.currentRallyPoint
 

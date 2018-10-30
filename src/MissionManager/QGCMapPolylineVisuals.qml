@@ -236,7 +236,6 @@ Item {
         id: dragAreaComponent
 
         MissionItemIndicatorDrag {
-            mapControl: _root.mapControl
             id:         dragArea
             z:          _zorderDragHandle
 

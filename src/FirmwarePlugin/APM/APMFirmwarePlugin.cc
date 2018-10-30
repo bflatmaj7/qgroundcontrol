@@ -785,9 +785,6 @@ QString APMFirmwarePlugin::internalParameterMetaDataFile(Vehicle* vehicle)
             return QStringLiteral(":/FirmwarePlugin/APM/APMParameterFactMetaData.Copter.3.3.xml");
         } else if (majorVersion == 3) {
             switch (minorVersion) {
-            case 0:
-            case 1:
-            case 2:
             case 3:
                 return QStringLiteral(":/FirmwarePlugin/APM/APMParameterFactMetaData.Copter.3.3.xml");
             case 4:
@@ -795,8 +792,11 @@ QString APMFirmwarePlugin::internalParameterMetaDataFile(Vehicle* vehicle)
             case 5:
                 return QStringLiteral(":/FirmwarePlugin/APM/APMParameterFactMetaData.Copter.3.5.xml");
             case 6:
-            default:
                 return QStringLiteral(":/FirmwarePlugin/APM/APMParameterFactMetaData.Copter.3.6.xml");
+            default:
+                if (minorVersion < 3) {
+                    return QStringLiteral(":/FirmwarePlugin/APM/APMParameterFactMetaData.Copter.3.3.xml");
+                }
             }
         }
         return QStringLiteral(":/FirmwarePlugin/APM/APMParameterFactMetaData.Copter.3.5.xml");
@@ -812,9 +812,6 @@ QString APMFirmwarePlugin::internalParameterMetaDataFile(Vehicle* vehicle)
             return QStringLiteral(":/FirmwarePlugin/APM/APMParameterFactMetaData.Plane.3.3.xml");
         } else if (majorVersion == 3) {
             switch (minorVersion) {
-            case 0:
-            case 1:
-            case 2:
             case 3:
             case 4:
                 return QStringLiteral(":/FirmwarePlugin/APM/APMParameterFactMetaData.Plane.3.3.xml");
@@ -823,9 +820,10 @@ QString APMFirmwarePlugin::internalParameterMetaDataFile(Vehicle* vehicle)
                 return QStringLiteral(":/FirmwarePlugin/APM/APMParameterFactMetaData.Plane.3.5.xml");
             case 7:
                 return QStringLiteral(":/FirmwarePlugin/APM/APMParameterFactMetaData.Plane.3.7.xml");
-            case 8:
             default:
-                return QStringLiteral(":/FirmwarePlugin/APM/APMParameterFactMetaData.Plane.3.8.xml");
+                if (minorVersion < 3) {
+                    return QStringLiteral(":/FirmwarePlugin/APM/APMParameterFactMetaData.Plane.3.3.xml");
+                }
             }
         }
         return QStringLiteral(":/FirmwarePlugin/APM/APMParameterFactMetaData.Plane.3.8.xml");
@@ -838,12 +836,8 @@ QString APMFirmwarePlugin::internalParameterMetaDataFile(Vehicle* vehicle)
             case 0:
             case 1:
                 return QStringLiteral(":/FirmwarePlugin/APM/APMParameterFactMetaData.Rover.3.0.xml");
-            case 2:
-            case 3:
-                return QStringLiteral(":/FirmwarePlugin/APM/APMParameterFactMetaData.Rover.3.2.xml");
-            case 4:
             default:
-                return QStringLiteral(":/FirmwarePlugin/APM/APMParameterFactMetaData.Rover.3.4.xml");
+                return QStringLiteral(":/FirmwarePlugin/APM/APMParameterFactMetaData.Rover.3.2.xml");
             }
         }
         return QStringLiteral(":/FirmwarePlugin/APM/APMParameterFactMetaData.Rover.3.2.xml");

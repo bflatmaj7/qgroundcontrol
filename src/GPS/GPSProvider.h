@@ -29,14 +29,7 @@ class GPSProvider : public QThread
 {
     Q_OBJECT
 public:
-
-    enum class GPSType {
-        u_blox,
-        trimble
-    };
-
-    GPSProvider(const QString& device, GPSType type, bool enableSatInfo, double surveyInAccMeters, int surveryInDurationSecs,
-            const std::atomic_bool& requestStop);
+    GPSProvider(const QString& device, bool enableSatInfo, double surveyInAccMeters, int surveryInDurationSecs, const std::atomic_bool& requestStop);
     ~GPSProvider();
 
     /**
@@ -64,7 +57,6 @@ private:
 	int callback(GPSCallbackType type, void *data1, int data2);
 
     QString _device;
-    GPSType _type;
     const std::atomic_bool& _requestStop;
     double  _surveyInAccMeters;
     int     _surveryInDurationSecs;

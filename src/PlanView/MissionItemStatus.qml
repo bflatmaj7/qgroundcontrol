@@ -73,7 +73,6 @@ Rectangle {
             visible:    display
 
             property real availableHeight:      height - indicator.height
-            property bool _coordValid:          object.coordinate.isValid
             property bool _terrainAvailable:    !isNaN(object.terrainPercent)
             property real _terrainPercent:      _terrainAvailable ? object.terrainPercent : 1
 
@@ -85,8 +84,7 @@ Rectangle {
                 anchors.horizontalCenter:   parent.horizontalCenter
                 width:                      indicator.width
                 height:                     _terrainAvailable ? Math.max(availableHeight * _terrainPercent, 1) : parent.height
-                color:                      _terrainAvailable ? (object.terrainCollision ? "red": qgcPal.text) : "yellow"
-                visible:                    _coordValid
+                color:                      _terrainAvailable ? (_terrainPercent > object.altPercent ? "red": qgcPal.text) : "yellow"
             }
 
             MissionItemIndexLabel {

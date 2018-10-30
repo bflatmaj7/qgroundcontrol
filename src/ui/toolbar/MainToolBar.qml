@@ -112,7 +112,7 @@ Rectangle {
                 anchors.top:        parent.top
                 anchors.bottom:     parent.bottom
                 exclusiveGroup:     mainActionGroup
-                source:             "/qmlimages/Plan.svg"
+                source:             "/qmlimages/LogDownloadIcon"
                 onClicked:          toolBar.showPlanView()
             }
 
@@ -131,7 +131,7 @@ Rectangle {
                 anchors.bottom:     parent.bottom
                 exclusiveGroup:     mainActionGroup
                 source:             "/qmlimages/Analyze.svg"
-                visible:            !ScreenTools.isMobile && QGroundControl.corePlugin.showAdvancedUI
+//                visible:            !ScreenTools.isMobile && QGroundControl.corePlugin.showAdvancedUI
                 onClicked:          toolBar.showAnalyzeView()
             }
 

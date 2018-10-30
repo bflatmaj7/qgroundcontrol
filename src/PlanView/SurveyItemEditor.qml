@@ -90,20 +90,6 @@ Rectangle {
             FactTextField {
                 fact:                   missionItem.gridAngle
                 Layout.fillWidth:       true
-                onUpdated:              angleSlider.value = missionItem.gridAngle.value
-            }
-            QGCSlider {
-                id:                     angleSlider
-                minimumValue:           0
-                maximumValue:           359
-                stepSize:               1
-                tickmarksEnabled:       false
-                Layout.fillWidth:       true
-                Layout.columnSpan:      2
-                Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.5
-                onValueChanged:         missionItem.gridAngle.value = value
-                Component.onCompleted:  value = missionItem.gridAngle.value
-                updateValueWhileDragging: true
             }
 
             QGCLabel { text: qsTr("Turnaround dist") }
@@ -126,7 +112,7 @@ Rectangle {
                 Layout.columnSpan:  2
                 onClicked: {
                     if (checked) {
-                        missionItem.cameraTriggerInTurnAround.rawValue = false
+                        missionItem.cameraTriggerInTurnaround.rawValue = false
                     }
                 }
             }

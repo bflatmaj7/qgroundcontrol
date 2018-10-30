@@ -1,0 +1,107 @@
+[
+{
+    "name":             "roll",
+    "shortDescription": "roll",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "deg"
+},
+{
+    "name":             "pitch",
+    "shortDescription": "pitch",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "deg"
+},
+{
+    "name":             "yaw",
+    "shortDescription": "yaw",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "deg"
+},
+{
+    "name":             "ax",
+    "shortDescription": "ax",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "m/s^2"
+},
+{
+    "name":             "ay",
+    "shortDescription": "ay",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "m/s^2"
+},
+{
+    "name":             "az",
+    "shortDescription": "az",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "m/s^2"
+},
+{
+    "name":             "gx",
+    "shortDescription": "gx",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "m/s^2"
+},
+{
+    "name":             "gy",
+    "shortDescription": "gy",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "m/s^2"
+},
+{
+    "name":             "gz",
+    "shortDescription": "gz",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "m/s^2"
+},
+{
+    "name":             "mx",
+    "shortDescription": "mx",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "m/s^2"
+},
+{
+    "name":             "my",
+    "shortDescription": "my",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "m/s^2"
+},
+{
+    "name":             "mz",
+    "shortDescription": "mz",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "m/s^2"
+},
+{
+    "name":             "vns",
+    "shortDescription": "vns",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "m/s"
+},
+{
+    "name":             "vew",
+    "shortDescription": "vew",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "m/s"
+},
+{
+    "name":             "vud",
+    "shortDescription": "vud",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "m/s"
+}
+]

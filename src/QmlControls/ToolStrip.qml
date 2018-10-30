@@ -16,7 +16,7 @@ import QGroundControl.Palette       1.0
 Rectangle {
     id:         _root
     color:      qgcPal.window
-    width:      ScreenTools.isMobile ? ScreenTools.minTouchPixels : ScreenTools.defaultFontPixelWidth * 7
+    width:      ScreenTools.isMobile ? ScreenTools.minTouchPixels : ScreenTools.defaultFontPixelWidth * 6
     height:     buttonStripColumn.height + (buttonStripColumn.anchors.margins * 2)
     radius:     _radius
     border.width:   1
@@ -133,7 +133,7 @@ Rectangle {
                     id:             scope
                     anchors.left:   parent.left
                     anchors.right:  parent.right
-                    height:         width * 0.8
+                    height:         width
 
                     Rectangle {
                         anchors.fill:   parent
@@ -141,11 +141,9 @@ Rectangle {
 
                         QGCColoredImage {
                             id:                 button
-                            height:             parent.height
-                            width:              height
-                            anchors.centerIn:   parent
+                            anchors.fill:       parent
                             source:             _source
-                            sourceSize.height:  height
+                            sourceSize.height:  parent.height
                             fillMode:           Image.PreserveAspectFit
                             mipmap:             true
                             smooth:             true

@@ -36,8 +36,7 @@ Rectangle {
         altField.setToMinimumTakeoff()
     }
 
-    /// Returns the user specified change in altitude from the current vehicle altitude
-    function getAltitudeChangeValue() {
+    function getValue() {
         return altField.newAltitudeMeters - _vehicleAltitude
     }
 

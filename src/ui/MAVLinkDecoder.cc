@@ -72,6 +72,7 @@ void MAVLinkDecoder::receiveMessage(LinkInterface* link,mavlink_message_t messag
     // Store an arrival time for this message. This value ends up being calculated later.
     quint64 time = 0;
 
+
     // The SYSTEM_TIME message is special, in that it's handled here for synchronizing the QGC time with the remote time.
     if (message.msgid == MAVLINK_MSG_ID_SYSTEM_TIME)
     {

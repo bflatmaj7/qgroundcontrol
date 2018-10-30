@@ -97,6 +97,41 @@
     "decimalPlaces":    1
 },
 {
+    "name":             "temp",
+    "shortDescription": "Meteo temperature",
+    "type":             "double",
+    "decimalPlaces":    1,
+    "units":            "°C"
+},
+{
+    "name":             "hum",
+    "shortDescription": "Meteo humidity",
+    "type":             "double",
+    "decimalPlaces":    1,
+    "units":            "%"
+},
+{
+    "name":             "windSpeed",
+    "shortDescription": "Wind Speed",
+    "type":             "double",
+    "decimalPlaces":    1,
+    "units":            "m/s"
+},
+{
+    "name":             "windDir",
+    "shortDescription": "Wind Direction",
+    "type":             "double",
+    "decimalPlaces":    1,
+    "units":            "deg"
+},
+{
+    "name":             "windVert",
+    "shortDescription": "vertical Wind",
+    "type":             "double",
+    "decimalPlaces":    1,
+    "units":            "m/s"
+},
+{
     "name":             "hobbs",
     "shortDescription": "Hobbs Meter",
     "type":             "string"

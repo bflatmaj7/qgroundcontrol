@@ -1,0 +1,30 @@
+[
+{
+    "name":             "temperature",
+    "shortDescription": "temp",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "C"
+},
+{
+    "name":             "humidity",
+    "shortDescription": "hum",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "%"
+},
+{
+    "name":             "virt.pot.temperature",
+    "shortDescription": "t_pot_v",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "K"
+},
+{
+    "name":             "specific humidity",
+    "shortDescription": "q_hu",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "g/kg"
+}
+]

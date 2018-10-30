@@ -310,12 +310,6 @@ Rectangle {
         width:          _controllerProgressPct * parent.width
         color:          qgcPal.colorGreen
         visible:        false
-
-        onVisibleChanged: {
-            if (visible) {
-                largeProgressBar._userHide = false
-            }
-        }
     }
 
     /*
