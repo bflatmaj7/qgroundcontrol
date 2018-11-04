@@ -1,0 +1,65 @@
+[
+{
+    "name":             "diff. pressure, port 0",
+    "shortDescription": "dp0",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "Pa"
+},
+{
+    "name":             "diff. pressure, port 1",
+    "shortDescription": "dp1",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "Pa"
+},
+{
+    "name":             "diff. pressure, port 2",
+    "shortDescription": "dp2",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "Pa"
+},
+{
+    "name":             "diff. pressure, port 3",
+    "shortDescription": "dp3",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "Pa"
+},
+{
+    "name":             "diff. pressure, port 4",
+    "shortDescription": "dp4",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "Pa"
+},
+{
+    "name":             "diff. pressure, static port",
+    "shortDescription": "dpS",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "Pa"
+},
+{
+    "name":             "true airspeed",
+    "shortDescription": "tas",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "m/s"
+},
+{
+    "name":             "angle of attack",
+    "shortDescription": "aoa",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "deg"
+},
+{
+    "name":             "angle of sideslip",
+    "shortDescription": "aos",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "deg"
+}
+]
