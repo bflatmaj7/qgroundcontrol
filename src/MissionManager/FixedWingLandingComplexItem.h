@@ -144,7 +144,6 @@ private:
     bool            _altitudesAreRelative;
     bool            _valueSetIsDistance;
 
-    static const char* settingsGroup;
     static const char* _jsonLoiterCoordinateKey;
     static const char* _jsonLoiterRadiusKey;
     static const char* _jsonLoiterClockwiseKey;

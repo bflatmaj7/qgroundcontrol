@@ -67,6 +67,11 @@ const char* Vehicle::_flightDistanceFactName =      "flightDistance";
 const char* Vehicle::_flightTimeFactName =          "flightTime";
 const char* Vehicle::_distanceToHomeFactName =      "distanceToHome";
 const char* Vehicle::_hobbsFactName =               "hobbs";
+const char* Vehicle::_tempFactName =                "temp";
+const char* Vehicle::_humFactName =                 "hum";
+const char* Vehicle::_windSpeedFactName =           "windSpeed";
+const char* Vehicle::_windDirFactName =             "windDir";
+const char* Vehicle::_windVertFactName =            "windVert";
 
 const char* Vehicle::_gpsFactGroupName =            "gps";
 const char* Vehicle::_battery1FactGroupName =       "battery";
@@ -76,6 +81,9 @@ const char* Vehicle::_vibrationFactGroupName =      "vibration";
 const char* Vehicle::_temperatureFactGroupName =    "temperature";
 const char* Vehicle::_clockFactGroupName =          "clock";
 const char* Vehicle::_distanceSensorFactGroupName = "distanceSensor";
+const char* Vehicle::_meteoFactGroupName =          "meteo";
+const char* Vehicle::_insFactGroupName =            "ins";
+const char* Vehicle::_mhpFactGroupName =            "mhp";
 
 Vehicle::Vehicle(LinkInterface*             link,
                  int                        vehicleId,
@@ -110,7 +118,7 @@ Vehicle::Vehicle(LinkInterface*             link,
     , _currentMessageType(MessageNone)
     , _updateCount(0)
     , _rcRSSI(255)
-    , _rcRSSIstore(255.)
+    , _rcRSSIstore(255)
     , _autoDisconnect(false)
     , _flying(false)
     , _landing(false)
@@ -186,6 +194,11 @@ Vehicle::Vehicle(LinkInterface*             link,
     , _flightTimeFact       (0, _flightTimeFactName,        FactMetaData::valueTypeElapsedTimeInSeconds)
     , _distanceToHomeFact   (0, _distanceToHomeFactName,    FactMetaData::valueTypeDouble)
     , _hobbsFact            (0, _hobbsFactName,             FactMetaData::valueTypeString)
+    , _tempFact             (0, _tempFactName,              FactMetaData::valueTypeDouble)
+    , _humFact              (0, _humFactName,               FactMetaData::valueTypeDouble)
+    , _windSpeedFact        (0, _windSpeedFactName,         FactMetaData::valueTypeDouble)
+    , _windDirFact          (0, _windDirFactName,           FactMetaData::valueTypeDouble)
+    , _windVertFact         (0, _windVertFactName,          FactMetaData::valueTypeDouble)
     , _gpsFactGroup(this)
     , _battery1FactGroup(this)
     , _battery2FactGroup(this)
@@ -194,6 +207,9 @@ Vehicle::Vehicle(LinkInterface*             link,
     , _temperatureFactGroup(this)
     , _clockFactGroup(this)
     , _distanceSensorFactGroup(this)
+    , _meteoFactGroup(this)
+    , _insFactGroup(this)
+    , _mhpFactGroup(this)
 {
     connect(_joystickManager, &JoystickManager::activeJoystickChanged, this, &Vehicle::_loadSettings);
     connect(qgcApp()->toolbox()->multiVehicleManager(), &MultiVehicleManager::activeVehicleAvailableChanged, this, &Vehicle::_loadSettings);
@@ -303,7 +319,7 @@ Vehicle::Vehicle(MAV_AUTOPILOT              firmwareType,
     , _currentMessageType(MessageNone)
     , _updateCount(0)
     , _rcRSSI(255)
-    , _rcRSSIstore(255.)
+    , _rcRSSIstore(255)
     , _autoDisconnect(false)
     , _flying(false)
     , _landing(false)
@@ -370,6 +386,11 @@ Vehicle::Vehicle(MAV_AUTOPILOT              firmwareType,
     , _flightTimeFact       (0, _flightTimeFactName,        FactMetaData::valueTypeElapsedTimeInSeconds)
     , _distanceToHomeFact   (0, _distanceToHomeFactName,    FactMetaData::valueTypeDouble)
     , _hobbsFact            (0, _hobbsFactName,             FactMetaData::valueTypeString)
+    , _tempFact             (0, _tempFactName,              FactMetaData::valueTypeDouble)
+    , _humFact              (0, _humFactName,               FactMetaData::valueTypeDouble)
+    , _windSpeedFact        (0, _windSpeedFactName,         FactMetaData::valueTypeDouble)
+    , _windDirFact          (0, _windDirFactName,           FactMetaData::valueTypeDouble)
+    , _windVertFact         (0, _windVertFactName,          FactMetaData::valueTypeDouble)
     , _gpsFactGroup(this)
     , _battery1FactGroup(this)
     , _battery2FactGroup(this)
@@ -377,6 +398,9 @@ Vehicle::Vehicle(MAV_AUTOPILOT              firmwareType,
     , _vibrationFactGroup(this)
     , _clockFactGroup(this)
     , _distanceSensorFactGroup(this)
+    , _meteoFactGroup(this)
+    , _insFactGroup(this)
+    , _mhpFactGroup(this)
 {
     _commonInit();
     _firmwarePlugin->initializeVehicle(this);
@@ -437,6 +461,11 @@ void Vehicle::_commonInit(void)
     _addFact(&_flightDistanceFact,      _flightDistanceFactName);
     _addFact(&_flightTimeFact,          _flightTimeFactName);
     _addFact(&_distanceToHomeFact,      _distanceToHomeFactName);
+    _addFact(&_tempFact,                _tempFactName);
+    _addFact(&_humFact,                 _humFactName);
+    _addFact(&_windSpeedFact,           _windSpeedFactName);
+    _addFact(&_windDirFact,             _windDirFactName);
+    _addFact(&_windVertFact,            _windVertFactName);
 
     _hobbsFact.setRawValue(QVariant(QString("0000:00:00")));
     _addFact(&_hobbsFact,               _hobbsFactName);
@@ -449,6 +478,9 @@ void Vehicle::_commonInit(void)
     _addFactGroup(&_temperatureFactGroup,       _temperatureFactGroupName);
     _addFactGroup(&_clockFactGroup,             _clockFactGroupName);
     _addFactGroup(&_distanceSensorFactGroup,    _distanceSensorFactGroupName);
+    _addFactGroup(&_meteoFactGroup,             _meteoFactGroupName);
+    _addFactGroup(&_insFactGroup,               _insFactGroupName);
+    _addFactGroup(&_mhpFactGroup,               _mhpFactGroupName);
 
     // Add firmware-specific fact groups, if provided
     QMap<QString, FactGroup*>* fwFactGroups = _firmwarePlugin->factGroups();
@@ -614,6 +646,7 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
         return;
     }
 
+    //qDebug() << "message received with id: " << message.msgid;
     switch (message.msgid) {
     case MAVLINK_MSG_ID_HOME_POSITION:
         _handleHomePosition(message);
@@ -720,6 +753,15 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
     case MAVLINK_MSG_ID_DISTANCE_SENSOR:
         _handleDistanceSensor(message);
         break;
+    case MAVLINK_MSG_ID_METEO:
+        _handleMeteo(message);
+        break;
+    case MAVLINK_MSG_ID_INS:
+        _handleIns(message);
+        break;
+    case MAVLINK_MSG_ID_MHP:
+        _handleMhp(message);
+        break;
     case MAVLINK_MSG_ID_PING:
         _handlePing(link, message);
         break;
@@ -782,9 +824,9 @@ void Vehicle::_handleVfrHud(mavlink_message_t& message)
     mavlink_vfr_hud_t vfrHud;
     mavlink_msg_vfr_hud_decode(&message, &vfrHud);
 
-    _airSpeedFact.setRawValue(qIsNaN(vfrHud.airspeed) ? 0 : vfrHud.airspeed);
-    _groundSpeedFact.setRawValue(qIsNaN(vfrHud.groundspeed) ? 0 : vfrHud.groundspeed);
-    _climbRateFact.setRawValue(qIsNaN(vfrHud.climb) ? 0 : vfrHud.climb);
+//    _airSpeedFact.setRawValue(qIsNaN(vfrHud.airspeed) ? 0 : vfrHud.airspeed);
+//    _groundSpeedFact.setRawValue(qIsNaN(vfrHud.groundspeed) ? 0 : vfrHud.groundspeed);
+//    _climbRateFact.setRawValue(qIsNaN(vfrHud.climb) ? 0 : vfrHud.climb);
 }
 
 void Vehicle::_handleDistanceSensor(mavlink_message_t& message)
@@ -828,6 +870,37 @@ void Vehicle::_handleDistanceSensor(mavlink_message_t& message)
             orientation2Fact.fact->setRawValue(distanceSensor.current_distance / 100.0); // cm to meters
         }
     }
+}
+
+
+void Vehicle::_handleMeteo(mavlink_message_t& message)
+{
+    mavlink_meteo_t meteo;
+
+    mavlink_msg_meteo_decode(&message, &meteo);\
+
+    _tempFact.setRawValue(qIsNaN(meteo.temperature) ? 0 : meteo.temperature);
+    _humFact.setRawValue(qIsNaN(meteo.humidity) ? 0 : meteo.humidity);
+}
+
+void Vehicle::_handleIns(mavlink_message_t& message)
+{
+    mavlink_ins_t ins;
+
+    mavlink_msg_ins_decode(&message, &ins);\
+
+    _climbRateFact.setRawValue(qIsNaN(ins.vud) ? 0 : ins.vud);
+    double groundspeed = sqrt(pow(ins.vns,2)+pow(ins.vew,2));
+    _groundSpeedFact.setRawValue(qIsNaN(groundspeed) ? 0 : groundspeed);
+}
+
+void Vehicle::_handleMhp(mavlink_message_t& message)
+{
+    mavlink_mhp_t mhp;
+
+    mavlink_msg_mhp_decode(&message, &mhp);\
+
+    _airSpeedFact.setRawValue(qIsNaN(mhp.tas) ? 0 : mhp.tas);
 }
 
 void Vehicle::_handleAttitudeTarget(mavlink_message_t& message)
@@ -980,7 +1053,7 @@ void Vehicle::_handleHighLatency2(mavlink_message_t& message)
 
     _airSpeedFact.setRawValue((double)highLatency2.airspeed / 5.0);
     _groundSpeedFact.setRawValue((double)highLatency2.groundspeed / 5.0);
-    _climbRateFact.setRawValue((double)highLatency2.climb_rate / 10.0);
+//    _climbRateFact.setRawValue((double)highLatency2.climb_rate / 10.0);
     _headingFact.setRawValue((double)highLatency2.heading * 2.0);
     _altitudeRelativeFact.setRawValue(std::numeric_limits<double>::quiet_NaN());
     _altitudeAMSLFact.setRawValue(highLatency2.altitude);
@@ -1062,7 +1135,6 @@ void Vehicle::_setCapabilities(uint64_t capabilityBits)
 
     qCDebug(VehicleLog) << QString("Vehicle %1 Mavlink 2.0").arg(_capabilityBits & MAV_PROTOCOL_CAPABILITY_MAVLINK2 ? supports : doesNotSupport);
     qCDebug(VehicleLog) << QString("Vehicle %1 MISSION_ITEM_INT").arg(_capabilityBits & MAV_PROTOCOL_CAPABILITY_MISSION_INT ? supports : doesNotSupport);
-    qCDebug(VehicleLog) << QString("Vehicle %1 MISSION_COMMAND_INT").arg(_capabilityBits & MAV_PROTOCOL_CAPABILITY_COMMAND_INT ? supports : doesNotSupport);
     qCDebug(VehicleLog) << QString("Vehicle %1 GeoFence").arg(_capabilityBits & MAV_PROTOCOL_CAPABILITY_MISSION_FENCE ? supports : doesNotSupport);
     qCDebug(VehicleLog) << QString("Vehicle %1 RallyPoints").arg(_capabilityBits & MAV_PROTOCOL_CAPABILITY_MISSION_RALLY ? supports : doesNotSupport);
 }
@@ -1262,6 +1334,10 @@ void Vehicle::_handleWindCov(mavlink_message_t& message)
     _windFactGroup.direction()->setRawValue(direction);
     _windFactGroup.speed()->setRawValue(speed);
     _windFactGroup.verticalSpeed()->setRawValue(0);
+
+    _windSpeedFact.setRawValue(qIsNaN(speed) ? 0 : speed*3.6);
+    _windDirFact.setRawValue(qIsNaN(direction) ? 0 : direction);
+    _windVertFact.setRawValue(qIsNaN(wind.wind_z) ? 0 : wind.wind_z);
 }
 
 #if !defined(NO_ARDUPILOT_DIALECT)
@@ -1280,6 +1356,7 @@ void Vehicle::_handleWind(mavlink_message_t& message)
     _windFactGroup.verticalSpeed()->setRawValue(wind.speed_z);
 }
 #endif
+
 
 bool Vehicle::_apmArmingNotRequired(void)
 {
@@ -1784,6 +1861,7 @@ void Vehicle::_updatePriorityLink(bool updateActive, bool sendCommand)
                         newPriorityLink = link;
                         break;
                     }
+                    return;
                 }
             }
         }
@@ -2134,7 +2212,7 @@ void Vehicle::setFlightMode(const QString& flightMode)
 QString Vehicle::priorityLinkName(void) const
 {
     if (_priorityLink) {
-        return _priorityLink->getName();
+      return _priorityLink->getName();
     }
 
     return "none";
@@ -2410,10 +2488,10 @@ void Vehicle::_sendQGCTimeToVehicle(void)
     // Timestamp of the component clock since boot time in milliseconds (Not necessary).
     cmd.time_boot_ms = 0;
     mavlink_msg_system_time_encode_chan(_mavlink->getSystemId(),
-                                        _mavlink->getComponentId(),
-                                        priorityLink()->mavlinkChannel(),
-                                        &msg,
-                                        &cmd);
+                                    _mavlink->getComponentId(),
+                                    priorityLink()->mavlinkChannel(),
+                                    &msg,
+                                    &cmd);
 
     sendMessageOnLink(priorityLink(), msg);
 }
@@ -2446,18 +2524,10 @@ void Vehicle::_imageReady(UASInterface*)
 
 void Vehicle::_remoteControlRSSIChanged(uint8_t rssi)
 {
-    //-- 0 <= rssi <= 100 - 255 means "invalid/unknown"
-    if(rssi > 100) { // Anything over 100 doesn't make sense
-        if(_rcRSSI != 255) {
-            _rcRSSI = 255;
-            emit rcRSSIChanged(_rcRSSI);
-        }
-        return;
+    if (_rcRSSIstore < 0 || _rcRSSIstore > 100) {
+        _rcRSSIstore = rssi;
     }
-    //-- Initialize it
-    if(_rcRSSIstore == 255.) {
-        _rcRSSIstore = (double)rssi;
-    }
+
     // Low pass to git rid of jitter
     _rcRSSIstore = (_rcRSSIstore * 0.9f) + ((float)rssi * 0.1);
     uint8_t filteredRSSI = (uint8_t)ceil(_rcRSSIstore);
@@ -2473,7 +2543,7 @@ void Vehicle::_remoteControlRSSIChanged(uint8_t rssi)
 void Vehicle::virtualTabletJoystickValue(double roll, double pitch, double yaw, double thrust)
 {
     // The following if statement prevents the virtualTabletJoystick from sending values if the standard joystick is enabled
-    if ( !_joystickEnabled && !_highLatencyLink) {
+    if ( !_joystickEnabled ) {
         _uas->setExternalControlSetpoint(roll, pitch, yaw, thrust, 0, JoystickModeRC);
     }
 }
@@ -2495,15 +2565,12 @@ void Vehicle::_linkActiveChanged(LinkInterface *link, bool active, int vehicleID
 
     emit linksPropertiesChanged();
 
-    bool communicationLost = false;
-    bool communicationRegained = false;
-
     if (link == _priorityLink) {
         if (active && _connectionLost) {
             // communication to priority link regained
             _connectionLost = false;
-            communicationRegained = true;
             emit connectionLostChanged(false);
+            qgcApp()->showMessage((tr("%1 communication to %2 link %3 regained")).arg(_vehicleIdSpeech()).arg((_links.count() > 1) ? "priority" : "").arg(link->getName()));
 
             if (_priorityLink->highLatency()) {
                 _setMaxProtoVersion(100);
@@ -2514,55 +2581,37 @@ void Vehicle::_linkActiveChanged(LinkInterface *link, bool active, int vehicleID
                                false,                                   // No error shown if fails
                                1);                                     // Request protocol version
             }
+
         } else if (!active && !_connectionLost) {
-            _updatePriorityLink(false /* updateActive */, false /* sendCommand */);
+            // communication to priority link lost
+            qgcApp()->showMessage((tr("%1 communication to %2 link %3 lost")).arg(_vehicleIdSpeech()).arg((_links.count() > 1) ? "priority" : "").arg(link->getName()));
 
-            // check if another active link has been found
+            _updatePriorityLink(false /* updateActive */, true /* sendCommand */);
+
             if (link == _priorityLink) {
-                _connectionLost = true;
-                communicationLost = true;
-                _heardFrom = false;
-                _maxProtoVersion = 0;
-                emit connectionLostChanged(true);
+                _say(QString(tr("%1 communication lost")).arg(_vehicleIdSpeech()));
+                qgcApp()->showMessage((tr("%1 communication lost")).arg(_vehicleIdSpeech()));
 
-                if (_autoDisconnect) {
-                    // Reset link state
-                    for (int i = 0; i < _links.length(); i++) {
-                        _mavlink->resetMetadataForLink(_links.at(i));
+                if (_connectionLostEnabled) {
+                    _connectionLost = true;
+                    _heardFrom = false;
+                    _maxProtoVersion = 0;
+                    emit connectionLostChanged(true);
+
+                    if (_autoDisconnect) {
+                        // Reset link state
+                        for (int i = 0; i < _links.length(); i++) {
+                            _mavlink->resetMetadataForLink(_links.at(i));
+                        }
+
+                        disconnectInactiveVehicle();
                     }
-
-                    disconnectInactiveVehicle();
                 }
             }
         }
     } else {
         qgcApp()->showMessage((tr("%1 communication to auxiliary link %2 %3")).arg(_vehicleIdSpeech()).arg(link->getName()).arg(active ? "regained" : "lost"));
         _updatePriorityLink(false /* updateActive */, true /* sendCommand */);
-    }
-
-    QString commSpeech;
-    bool multiVehicle = _toolbox->multiVehicleManager()->vehicles()->count() > 1;
-    if (communicationRegained) {
-        commSpeech = tr("Communication regained");
-        if (_links.count() > 1) {
-            qgcApp()->showMessage(tr("Communication regained to vehicle %1 on %2 link %3").arg(_id).arg(_links.count() > 1 ? tr("priority") : tr("auxiliary")).arg(link->getName()));
-        } else if (multiVehicle) {
-            qgcApp()->showMessage(tr("Communication regained to vehicle %1").arg(_id));
-        }
-    }
-    if (communicationLost) {
-        commSpeech = tr("Communication lost");
-        if (_links.count() > 1) {
-            qgcApp()->showMessage(tr("Communication lost to vehicle %1 on %2 link %3").arg(_id).arg(_links.count() > 1 ? tr("priority") : tr("auxiliary")).arg(link->getName()));
-        } else if (multiVehicle) {
-            qgcApp()->showMessage(tr("Communication lost to vehicle %1").arg(_id));
-        }
-    }
-    if (multiVehicle && (communicationLost || communicationRegained)) {
-        commSpeech.append(tr(" to vehicle %1").arg(_id));
-    }
-    if (!commSpeech.isEmpty()) {
-        _say(commSpeech);
     }
 }
 
@@ -2780,33 +2829,13 @@ void Vehicle::guidedModeChangeAltitude(double altitudeChange)
     _firmwarePlugin->guidedModeChangeAltitude(this, altitudeChange);
 }
 
-void Vehicle::guidedModeOrbit(const QGeoCoordinate& centerCoord, double radius, double amslAltitude)
+void Vehicle::guidedModeOrbit(const QGeoCoordinate& centerCoord, double radius, double velocity, double altitude)
 {
     if (!orbitModeSupported()) {
         qgcApp()->showMessage(QStringLiteral("Orbit mode not supported by Vehicle."));
         return;
     }
-
-    if (capabilityBits() && MAV_PROTOCOL_CAPABILITY_COMMAND_INT) {
-        sendMavCommandInt(defaultComponentId(),
-                          MAV_CMD_DO_ORBIT,
-                          MAV_FRAME_GLOBAL,
-                          true,            // show error if fails
-                          radius,
-                          qQNaN(),         // Use default velocity
-                          0,               // Vehicle points to center
-                          qQNaN(),         // reserved
-                          centerCoord.latitude(), centerCoord.longitude(), amslAltitude);
-    } else {
-        sendMavCommand(defaultComponentId(),
-                       MAV_CMD_DO_ORBIT,
-                       true,            // show error if fails
-                       radius,
-                       qQNaN(),         // Use default velocity
-                       0,               // Vehicle points to center
-                       qQNaN(),         // reserved
-                       centerCoord.latitude(), centerCoord.longitude(), amslAltitude);
-    }
+    _firmwarePlugin->guidedModeOrbit(this, centerCoord, radius, velocity, altitude);
 }
 
 void Vehicle::pauseVehicle(void)
@@ -2865,34 +2894,8 @@ void Vehicle::sendMavCommand(int component, MAV_CMD command, bool showError, flo
 {
     MavCommandQueueEntry_t entry;
 
-    entry.commandInt = false;
     entry.component = component;
     entry.command = command;
-    entry.showError = showError;
-    entry.rgParam[0] = param1;
-    entry.rgParam[1] = param2;
-    entry.rgParam[2] = param3;
-    entry.rgParam[3] = param4;
-    entry.rgParam[4] = param5;
-    entry.rgParam[5] = param6;
-    entry.rgParam[6] = param7;
-
-    _mavCommandQueue.append(entry);
-
-    if (_mavCommandQueue.count() == 1) {
-        _mavCommandRetryCount = 0;
-        _sendMavCommandAgain();
-    }
-}
-
-void Vehicle::sendMavCommandInt(int component, MAV_CMD command, MAV_FRAME frame, bool showError, float param1, float param2, float param3, float param4, double param5, double param6, float param7)
-{
-    MavCommandQueueEntry_t entry;
-
-    entry.commandInt = true;
-    entry.component = component;
-    entry.command = command;
-    entry.frame = frame;
     entry.showError = showError;
     entry.rgParam[0] = param1;
     entry.rgParam[1] = param2;
@@ -2976,47 +2979,25 @@ void Vehicle::_sendMavCommandAgain(void)
     _mavCommandAckTimer.start();
 
     mavlink_message_t       msg;
-    if (queuedCommand.commandInt) {
-        mavlink_command_int_t  cmd;
+    mavlink_command_long_t  cmd;
 
-        memset(&cmd, 0, sizeof(cmd));
-        cmd.target_system =     _id;
-        cmd.target_component =  queuedCommand.component;
-        cmd.command =           queuedCommand.command;
-        cmd.frame =             queuedCommand.frame;
-        cmd.param1 =            queuedCommand.rgParam[0];
-        cmd.param2 =            queuedCommand.rgParam[1];
-        cmd.param3 =            queuedCommand.rgParam[2];
-        cmd.param4 =            queuedCommand.rgParam[3];
-        cmd.x =                 queuedCommand.rgParam[4] * qPow(10.0, 7.0);
-        cmd.y =                 queuedCommand.rgParam[5] * qPow(10.0, 7.0);
-        cmd.z =                 queuedCommand.rgParam[6];
-        mavlink_msg_command_int_encode_chan(_mavlink->getSystemId(),
-                                            _mavlink->getComponentId(),
-                                            priorityLink()->mavlinkChannel(),
-                                            &msg,
-                                            &cmd);
-    } else {
-        mavlink_command_long_t  cmd;
-
-        memset(&cmd, 0, sizeof(cmd));
-        cmd.target_system =     _id;
-        cmd.target_component =  queuedCommand.component;
-        cmd.command =           queuedCommand.command;
-        cmd.confirmation =      0;
-        cmd.param1 =            queuedCommand.rgParam[0];
-        cmd.param2 =            queuedCommand.rgParam[1];
-        cmd.param3 =            queuedCommand.rgParam[2];
-        cmd.param4 =            queuedCommand.rgParam[3];
-        cmd.param5 =            queuedCommand.rgParam[4];
-        cmd.param6 =            queuedCommand.rgParam[5];
-        cmd.param7 =            queuedCommand.rgParam[6];
-        mavlink_msg_command_long_encode_chan(_mavlink->getSystemId(),
-                                             _mavlink->getComponentId(),
-                                             priorityLink()->mavlinkChannel(),
-                                             &msg,
-                                             &cmd);
-    }
+    memset(&cmd, 0, sizeof(cmd));
+    cmd.command = queuedCommand.command;
+    cmd.confirmation = 0;
+    cmd.param1 = queuedCommand.rgParam[0];
+    cmd.param2 = queuedCommand.rgParam[1];
+    cmd.param3 = queuedCommand.rgParam[2];
+    cmd.param4 = queuedCommand.rgParam[3];
+    cmd.param5 = queuedCommand.rgParam[4];
+    cmd.param6 = queuedCommand.rgParam[5];
+    cmd.param7 = queuedCommand.rgParam[6];
+    cmd.target_system = _id;
+    cmd.target_component = queuedCommand.component;
+    mavlink_msg_command_long_encode_chan(_mavlink->getSystemId(),
+                                         _mavlink->getComponentId(),
+                                         priorityLink()->mavlinkChannel(),
+                                         &msg,
+                                         &cmd);
 
     sendMessageOnLink(priorityLink(), msg);
 }
@@ -3140,7 +3121,6 @@ QString Vehicle::firmwareVersionTypeString(void) const
 
 void Vehicle::rebootVehicle()
 {
-    _autoDisconnect = true;
     sendMavCommand(_defaultComponentId, MAV_CMD_PREFLIGHT_REBOOT_SHUTDOWN, true, 1.0f);
 }
 
@@ -3753,4 +3733,141 @@ VehicleDistanceSensorFactGroup::VehicleDistanceSensorFactGroup(QObject* parent)
     _rotationYaw270Fact.setRawValue(std::numeric_limits<float>::quiet_NaN());
     _rotationPitch90Fact.setRawValue(std::numeric_limits<float>::quiet_NaN());
     _rotationPitch270Fact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+}
+
+const char* VehicleMeteoFactGroup::_temperatureFactName =     "temperature";
+const char* VehicleMeteoFactGroup::_humidityFactName =    "humidity";
+const char* VehicleMeteoFactGroup::_t_pot_vFactName =    "t_pot_v";
+const char* VehicleMeteoFactGroup::_q_huFactName =    "q_hu";
+
+VehicleMeteoFactGroup::VehicleMeteoFactGroup(QObject* parent)
+    : FactGroup             (1000, ":/json/Vehicle/MeteoFact.json", parent)
+    , _temperatureFact      (0, _temperatureFactName,       FactMetaData::valueTypeDouble)
+    , _humidityFact         (0, _humidityFactName,          FactMetaData::valueTypeDouble)
+    , _t_pot_vFact          (0, _t_pot_vFactName,           FactMetaData::valueTypeDouble)
+    , _q_huFact             (0, _q_huFactName,              FactMetaData::valueTypeDouble)
+{
+    _addFact(&_temperatureFact,         _temperatureFactName);
+    _addFact(&_humidityFact,            _humidityFactName);
+    _addFact(&_t_pot_vFact,             _t_pot_vFactName);
+    _addFact(&_q_huFact,                _q_huFactName);
+
+    // Start out as not available "--.--"
+    _temperatureFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _humidityFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _t_pot_vFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _q_huFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+}
+
+const char* VehicleInsFactGroup::_rollFactName =     "roll";
+const char* VehicleInsFactGroup::_pitchFactName =    "pitch";
+const char* VehicleInsFactGroup::_yawFactName =    "yaw";
+const char* VehicleInsFactGroup::_axFactName =    "ax";
+const char* VehicleInsFactGroup::_ayFactName =    "ay";
+const char* VehicleInsFactGroup::_azFactName =    "az";
+const char* VehicleInsFactGroup::_gxFactName =    "gx";
+const char* VehicleInsFactGroup::_gyFactName =    "gy";
+const char* VehicleInsFactGroup::_gzFactName =    "gz";
+const char* VehicleInsFactGroup::_mxFactName =    "mx";
+const char* VehicleInsFactGroup::_myFactName =    "my";
+const char* VehicleInsFactGroup::_mzFactName =    "mz";
+const char* VehicleInsFactGroup::_vnsFactName =    "vns";
+const char* VehicleInsFactGroup::_vewFactName =    "vew";
+const char* VehicleInsFactGroup::_vudFactName =    "vud";
+
+VehicleInsFactGroup::VehicleInsFactGroup(QObject* parent)
+    : FactGroup             (1000, ":/json/Vehicle/InsFact.json", parent)
+    , _rollFact        (0, _rollFactName,       FactMetaData::valueTypeDouble)
+    , _pitchFact       (0, _pitchFactName,          FactMetaData::valueTypeDouble)
+    , _yawFact         (0, _yawFactName,          FactMetaData::valueTypeDouble)
+    , _axFact          (0, _axFactName,           FactMetaData::valueTypeDouble)
+    , _ayFact          (0, _ayFactName,           FactMetaData::valueTypeDouble)
+    , _azFact          (0, _azFactName,           FactMetaData::valueTypeDouble)
+    , _gxFact          (0, _gxFactName,           FactMetaData::valueTypeDouble)
+    , _gyFact          (0, _gyFactName,           FactMetaData::valueTypeDouble)
+    , _gzFact          (0, _gzFactName,           FactMetaData::valueTypeDouble)
+    , _mxFact          (0, _mxFactName,           FactMetaData::valueTypeDouble)
+    , _myFact          (0, _myFactName,           FactMetaData::valueTypeDouble)
+    , _mzFact          (0, _mzFactName,           FactMetaData::valueTypeDouble)
+    , _vnsFact         (0, _vnsFactName,          FactMetaData::valueTypeDouble)
+    , _vewFact         (0, _vewFactName,          FactMetaData::valueTypeDouble)
+    , _vudFact         (0, _vudFactName,          FactMetaData::valueTypeDouble)
+{
+    _addFact(&_rollFact,           _rollFactName);
+    _addFact(&_pitchFact,          _pitchFactName);
+    _addFact(&_yawFact,            _yawFactName);
+    _addFact(&_axFact,             _axFactName);
+    _addFact(&_ayFact,             _ayFactName);
+    _addFact(&_azFact,             _azFactName);
+    _addFact(&_gxFact,             _gxFactName);
+    _addFact(&_gyFact,             _gyFactName);
+    _addFact(&_gzFact,             _gzFactName);
+    _addFact(&_mxFact,             _mxFactName);
+    _addFact(&_myFact,             _myFactName);
+    _addFact(&_mzFact,             _mzFactName);
+    _addFact(&_vnsFact,            _vnsFactName);
+    _addFact(&_vewFact,            _vewFactName);
+    _addFact(&_vudFact,            _vudFactName);
+
+    // Start out as not available "--.--"
+    _rollFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _pitchFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _yawFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _axFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _ayFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _azFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _gxFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _gyFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _gzFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _mxFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _myFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _mzFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _vnsFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _vewFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _vudFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+}
+
+
+const char* VehicleMhpFactGroup::_dp0FactName =     "dp0";
+const char* VehicleMhpFactGroup::_dp1FactName =     "dp1";
+const char* VehicleMhpFactGroup::_dp2FactName =     "dp2";
+const char* VehicleMhpFactGroup::_dp3FactName =     "dp3";
+const char* VehicleMhpFactGroup::_dp4FactName =     "dp4";
+const char* VehicleMhpFactGroup::_dpSFactName =     "dpS";
+const char* VehicleMhpFactGroup::_tasFactName =     "tas";
+const char* VehicleMhpFactGroup::_aoaFactName =     "aoa";
+const char* VehicleMhpFactGroup::_aosFactName =     "aos";
+
+VehicleMhpFactGroup::VehicleMhpFactGroup(QObject* parent)
+    : FactGroup             (1000, ":/json/Vehicle/MhpFact.json", parent)
+    , _dp0Fact      (0, _dp0FactName,       FactMetaData::valueTypeDouble)
+    , _dp1Fact      (0, _dp1FactName,       FactMetaData::valueTypeDouble)
+    , _dp2Fact      (0, _dp2FactName,       FactMetaData::valueTypeDouble)
+    , _dp3Fact      (0, _dp3FactName,       FactMetaData::valueTypeDouble)
+    , _dp4Fact      (0, _dp4FactName,       FactMetaData::valueTypeDouble)
+    , _dpSFact      (0, _dpSFactName,       FactMetaData::valueTypeDouble)
+    , _tasFact      (0, _tasFactName,       FactMetaData::valueTypeDouble)
+    , _aoaFact      (0, _aoaFactName,       FactMetaData::valueTypeDouble)
+    , _aosFact      (0, _aosFactName,       FactMetaData::valueTypeDouble)
+{
+    _addFact(&_dp0Fact,            _dp0FactName);
+    _addFact(&_dp1Fact,            _dp1FactName);
+    _addFact(&_dp2Fact,            _dp2FactName);
+    _addFact(&_dp3Fact,            _dp3FactName);
+    _addFact(&_dp4Fact,            _dp4FactName);
+    _addFact(&_dpSFact,            _dpSFactName);
+    _addFact(&_tasFact,            _tasFactName);
+    _addFact(&_aoaFact,            _aoaFactName);
+    _addFact(&_aosFact,            _aosFactName);
+
+    // Start out as not available "--.--"
+    _dp0Fact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _dp1Fact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _dp2Fact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _dp3Fact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _dp4Fact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _dpSFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _tasFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _aoaFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _aosFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
 }

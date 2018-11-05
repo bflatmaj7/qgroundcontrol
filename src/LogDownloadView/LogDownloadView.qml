@@ -40,87 +40,87 @@ Rectangle {
         id: logController
 	}
 
-    QGCFlickable {
-        id:                 buttonScroll
-        width:              buttonColumn.width
-        anchors.topMargin:  _defaultTextHeight / 2
-        anchors.top:        parent.top
-        anchors.bottom:     parent.bottom
-        anchors.leftMargin: _horizontalMargin
-        anchors.left:       parent.left
-        contentHeight:      buttonColumn.height
-        flickableDirection: Flickable.VerticalFlick
-        clip:               true
+//    QGCFlickable {
+//        id:                 buttonScroll
+//        width:              buttonColumn.width
+//        anchors.topMargin:  _defaultTextHeight / 2
+//        anchors.top:        parent.top
+//        anchors.bottom:     parent.bottom
+//        anchors.leftMargin: _horizontalMargin
+//        anchors.left:       parent.left
+//        contentHeight:      buttonColumn.height
+//        flickableDirection: Flickable.VerticalFlick
+//        clip:               true
 
-        Column {
-            id:         buttonColumn
-            width:      _maxButtonWidth
-            spacing:    _defaultTextHeight / 2
+//        Column {
+//            id:         buttonColumn
+//            width:      _maxButtonWidth
+//            spacing:    _defaultTextHeight / 2
 
-            property real _maxButtonWidth: 0
+//            property real _maxButtonWidth: 0
 
-            Component.onCompleted: reflowWidths()
+//            Component.onCompleted: reflowWidths()
 
-            // I don't know why this does not work
-            Connections {
-                target:         QGroundControl.settingsManager.appSettings.appFontPointSize
-                onValueChanged: buttonColumn.reflowWidths()
-            }
+//            // I don't know why this does not work
+//            Connections {
+//                target:         QGroundControl.settingsManager.appSettings.appFontPointSize
+//                onValueChanged: buttonColumn.reflowWidths()
+//            }
 
-            function reflowWidths() {
-                buttonColumn._maxButtonWidth = 0
-                for (var i = 0; i < children.length; i++) {
-                    buttonColumn._maxButtonWidth = Math.max(buttonColumn._maxButtonWidth, children[i].width)
-                }
-                for (var j = 0; j < children.length; j++) {
-                    children[j].width = buttonColumn._maxButtonWidth
-                }
-            }
+//            function reflowWidths() {
+//                buttonColumn._maxButtonWidth = 0
+//                for (var i = 0; i < children.length; i++) {
+//                    buttonColumn._maxButtonWidth = Math.max(buttonColumn._maxButtonWidth, children[i].width)
+//                }
+//                for (var j = 0; j < children.length; j++) {
+//                    children[j].width = buttonColumn._maxButtonWidth
+//                }
+//            }
 
-            QGCLabel {
-                anchors.left:           parent.left
-                anchors.right:          parent.right
-                text:                   qsTr("LogDownload")
-                wrapMode:               Text.WordWrap
-                horizontalAlignment:    Text.AlignHCenter
-                visible:                !ScreenTools.isShortScreen
-            }
+//            QGCLabel {
+//                anchors.left:           parent.left
+//                anchors.right:          parent.right
+//                text:                   qsTr("LogDownload")
+//                wrapMode:               Text.WordWrap
+//                horizontalAlignment:    Text.AlignHCenter
+//                visible:                !ScreenTools.isShortScreen
+//            }
 
-            Repeater {
-                id: buttonRepeater
+//            Repeater {
+//                id: buttonRepeater
 
-                model: ListModel {
-                    ListElement {
-                        buttonImage:        "/qmlimages/LogDownloadIcon"
-                        buttonText:         qsTr("Log Download")
-                        pageSource:         "LogDownloadPage.qml"
-                    }
-                }
+//                model: ListModel {
+//                    ListElement {
+//                        buttonImage:        "/qmlimages/LogDownloadIcon"
+//                        buttonText:         qsTr("Log Download")
+//                        pageSource:         "LogDownloadPage.qml"
+//                    }
+//                }
 
-                Component.onCompleted: itemAt(0).checked = true
+//                Component.onCompleted: itemAt(0).checked = true
 
-                SubMenuButton {
-                    imageResource:      buttonImage
-                    setupIndicator:     false
-                    exclusiveGroup:     setupButtonGroup
-                    text:               buttonText
-                    onClicked:          panelLoader.source = pageSource
-                }
-            }
-        }
-    }
+//                SubMenuButton {
+//                    imageResource:      buttonImage
+//                    setupIndicator:     false
+//                    exclusiveGroup:     setupButtonGroup
+//                    text:               buttonText
+//                    onClicked:          panelLoader.source = pageSource
+//                }
+//            }
+//        }
+//    }
 
-    Rectangle {
-        id:                     divider
-        anchors.topMargin:      _verticalMargin
-        anchors.bottomMargin:   _verticalMargin
-        anchors.leftMargin:     _horizontalMargin
-        anchors.left:           buttonScroll.right
-        anchors.top:            parent.top
-        anchors.bottom:         parent.bottom
-        width:                  1
-        color:                  qgcPal.windowShade
-    }
+//    Rectangle {
+//        id:                     divider
+//        anchors.topMargin:      _verticalMargin
+//        anchors.bottomMargin:   _verticalMargin
+//        anchors.leftMargin:     _horizontalMargin
+//        anchors.left:           buttonScroll.right
+//        anchors.top:            parent.top
+//        anchors.bottom:         parent.bottom
+//        width:                  1
+//        color:                  qgcPal.windowShade
+//    }
 
     Loader {
         id:                     panelLoader
@@ -128,7 +128,7 @@ Rectangle {
         anchors.bottomMargin:   _verticalMargin
         anchors.leftMargin:     _horizontalMargin
         anchors.rightMargin:    _horizontalMargin
-        anchors.left:           divider.right
+        anchors.left:           parent.left
         anchors.right:          parent.right
         anchors.top:            parent.top
         anchors.bottom:         parent.bottom

@@ -37,7 +37,7 @@ Item {
 
     readonly property string _settingsViewSource:   "AppSettings.qml"
     readonly property string _setupViewSource:      "SetupView.qml"
-    readonly property string _planViewSource:       "PlanView.qml"
+    readonly property string _planViewSource:       "LogDownloadView.qml"
     readonly property string _analyzeViewSource:    "AnalyzeView.qml"
 
     onHeightChanged: {
@@ -100,13 +100,15 @@ Item {
         if(currentPopUp) {
             currentPopUp.close()
         }
+        ScreenTools.availableHeight = 0
         if (planViewLoader.source   != _planViewSource) {
             planViewLoader.source   = _planViewSource
         }
-        ScreenTools.availableHeight = parent.height - toolBar.height
+//        ScreenTools.availableHeight = parent.height - toolBar.height
         hideAllViews()
         planViewLoader.visible = true
-        planToolBar.visible = true
+//        planToolBar.visible = true
+        toolBar.checkPlanButton()
     }
 
     function showFlyView() {
@@ -346,7 +348,10 @@ Item {
 
     Loader {
         id:                 planViewLoader
-        anchors.fill:       parent
+        anchors.left:       parent.left
+        anchors.right:      parent.right
+        anchors.top:        toolBar.bottom
+        anchors.bottom:     parent.bottom
         visible:            false
 
         property var toolbar: planToolBar

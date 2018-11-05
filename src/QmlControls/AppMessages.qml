@@ -43,22 +43,8 @@ QGCView {
                     id:         categoryColumn
                     spacing:    ScreenTools.defaultFontPixelHeight / 2
 
-                    QGCButton {
-                        text: qsTr("Clear All")
-                        onClicked: {
-                            var logCats = QGroundControl.loggingCategories()
-                            for (var i=0; i<logCats.length; i++) {
-                                QGroundControl.setCategoryLoggingOn(logCats[i], false)
-                            }
-                            QGroundControl.updateLoggingFilterRules()
-                            categoryRepeater.model = undefined
-                            categoryRepeater.model = QGroundControl.loggingCategories()
-                        }
-                    }
-
                     Repeater {
-                        id:     categoryRepeater
-                        model:  QGroundControl.loggingCategories()
+                        model:      QGroundControl.loggingCategories()
 
                         QGCCheckBox {
                             text:       modelData

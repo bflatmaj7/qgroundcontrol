@@ -92,7 +92,6 @@ Item {
         id: dragAreaComponent
 
         MissionItemIndicatorDrag {
-            mapControl:     _root.map
             itemIndicator:  _itemVisual
             itemCoordinate: _missionItem.coordinate
 

@@ -272,7 +272,7 @@ QGCView {
                 id:                         _flightMap
                 anchors.fill:               parent
                 planMasterController:       masterController
-                guidedActionsController:    _guidedController
+                //guidedActionsController:    _guidedController
                 flightWidgets:              flightDisplayViewWidgets
                 rightPanelWidth:            ScreenTools.defaultFontPixelHeight * 9
                 qgcView:                    root
@@ -484,12 +484,12 @@ QGCView {
             z:                          _panel.z + 5
             width:                      parent.width  - (_flightVideoPipControl.width / 2)
             height:                     Math.min(ScreenTools.availableHeight * 0.25, ScreenTools.defaultFontPixelWidth * 16)
-            visible:                    (_virtualJoystick ? _virtualJoystick.value : false) && !QGroundControl.videoManager.fullScreen && !(_activeVehicle ? _activeVehicle.highLatencyLink : false)
+            visible:                    (_virtualJoystick ? _virtualJoystick.value : false) && !QGroundControl.videoManager.fullScreen
             anchors.bottom:             _flightVideoPipControl.top
             anchors.bottomMargin:       ScreenTools.defaultFontPixelHeight * 2
             anchors.horizontalCenter:   flightDisplayViewWidgets.horizontalCenter
             source:                     "qrc:/qml/VirtualJoystick.qml"
-            active:                     (_virtualJoystick ? _virtualJoystick.value : false) && !(_activeVehicle ? _activeVehicle.highLatencyLink : false)
+            active:                     _virtualJoystick ? _virtualJoystick.value : false
 
             property bool useLightColors: isBackgroundDark
 
@@ -497,7 +497,7 @@ QGCView {
         }
 
         ToolStrip {
-            visible:            (_activeVehicle ? _activeVehicle.guidedModeSupported : true) && !QGroundControl.videoManager.fullScreen
+            visible:            false//(_activeVehicle ? _activeVehicle.guidedModeSupported : true) && !QGroundControl.videoManager.fullScreen
             id:                 toolStrip
             anchors.leftMargin: isInstrumentRight() ? ScreenTools.defaultFontPixelWidth : undefined
             anchors.left:       isInstrumentRight() ? _panel.left : undefined
@@ -508,10 +508,11 @@ QGCView {
             z:                  _panel.z + 4
             title:              qsTr("Fly")
             maxHeight:          (_flightVideo.visible ? _flightVideo.y : parent.height) - toolStrip.y
-            buttonVisible:      [ _useChecklist, _guidedController.showTakeoff || !_guidedController.showLand, _guidedController.showLand && !_guidedController.showTakeoff, true, true, true ]
-            buttonEnabled:      [ _useChecklist && _activeVehicle, _guidedController.showTakeoff, _guidedController.showLand, _guidedController.showRTL, _guidedController.showPause, _anyActionAvailable ]
+            buttonVisible:      [ _useChecklist, _guidedController.showTakeoff || !_guidedController.showLand, _guidedController.showLand && !_guidedController.showTakeoff, true, true, true, _guidedController.smartShotsAvailable ]
+            buttonEnabled:      [ _useChecklist && _activeVehicle, _guidedController.showTakeoff, _guidedController.showLand, _guidedController.showRTL, _guidedController.showPause, _anyActionAvailable, _anySmartShotAvailable ]
 
             property bool _anyActionAvailable: _guidedController.showStartMission || _guidedController.showResumeMission || _guidedController.showChangeAlt || _guidedController.showLandAbort
+            property bool _anySmartShotAvailable: _guidedController.showOrbit
             property var _actionModel: [
                 {
                     title:      _guidedController.startMissionTitle,
@@ -542,6 +543,14 @@ QGCView {
                     text:       _guidedController.landAbortMessage,
                     action:     _guidedController.actionLandAbort,
                     visible:    _guidedController.showLandAbort
+                }
+            ]
+            property var _smartShotModel: [
+                {
+                    title:      _guidedController.orbitTitle,
+                    text:       _guidedController.orbitMessage,
+                    action:     _guidedController.actionOrbit,
+                    visible:    _guidedController.showOrbit
                 }
             ]
 
@@ -575,15 +584,28 @@ QGCView {
                     name:       qsTr("Action"),
                     iconSource: "/res/action.svg",
                     action:     -1
-                }
+                },
+                /*
+                  No firmware support any smart shots yet
+                {
+                    name:       qsTr("Smart"),
+                    iconSource: "/qmlimages/MapCenter.svg",
+                    action:     -1
+                },
+                */
             ]
 
             onClicked: {
                 guidedActionsController.closeAll()
                 var action = model[index].action
                 if (action === -1) {
-                    guidedActionList.model   = _actionModel
-                    guidedActionList.visible = true
+                    if (index == 5) {
+                        guidedActionList.model   = _actionModel
+                        guidedActionList.visible = true
+                    } else if (index == 6) {
+                        guidedActionList.model   = _smartShotModel
+                        guidedActionList.visible = true
+                    }
                 } else {
                     _guidedController.confirmAction(action)
                 }

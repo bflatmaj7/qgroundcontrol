@@ -38,7 +38,6 @@ Item {
     property var    _centerDragHandleComponent
     property bool   _circle:                    false
     property real   _circleRadius
-    property bool   _editCircleRadius:          false
 
     property real _zorderDragHandle:    QGroundControl.zOrderMapItems + 3   // Highest to prevent splitting when items overlap
     property real _zorderSplitHandle:   QGroundControl.zOrderMapItems + 2
@@ -225,7 +224,7 @@ Item {
         MenuItem {
             text:           qsTr("Set radius..." )
             visible:        _circle
-            onTriggered:    _editCircleRadius = true
+            onTriggered:    radiusDialog.visible = true
         }
 
         MenuItem {
@@ -329,7 +328,6 @@ Item {
 
         MissionItemIndicatorDrag {
             id:         dragArea
-            mapControl: _root.mapControl
             z:          _zorderDragHandle
             visible:    !_circle
 
@@ -449,7 +447,6 @@ Item {
         id: centerDragAreaComponent
 
         MissionItemIndicatorDrag {
-            mapControl:                 _root.mapControl
             z:                          _zorderCenterHandle
             onItemCoordinateChanged:    mapPolygon.center = itemCoordinate
             onDragStart:                mapPolygon.centerDrag = true
@@ -461,17 +458,18 @@ Item {
 
             function setRadiusFromDialog() {
                 setCircleRadius(mapPolygon.center, radiusField.text)
-                _editCircleRadius = false
+                radiusDialog.visible = false
             }
 
             Rectangle {
+                id:                 radiusDialog
                 anchors.margins:    _margin
                 anchors.left:       parent.right
                 width:              radiusColumn.width + (_margin *2)
                 height:             radiusColumn.height + (_margin *2)
                 color:              qgcPal.window
                 border.color:       qgcPal.text
-                visible:            _editCircleRadius
+                visible:            false
 
                 Column {
                     id:                 radiusColumn

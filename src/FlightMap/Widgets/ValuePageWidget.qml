@@ -102,24 +102,25 @@ Column {
         Column {
             width:  (pageWidth / 2) - (_margins / 2) - 0.1
             clip:   true
-
+            // change values font size here!
             QGCLabel {
                 width:                  parent.width
                 wrapMode:               Text.WordWrap
                 horizontalAlignment:    Text.AlignHCenter
-                font.pointSize:         ScreenTools.isTinyScreen ? ScreenTools.smallFontPointSize * 0.75 : ScreenTools.smallFontPointSize
+                font.pointSize:         ScreenTools.isTinyScreen ? ScreenTools.largeFontPointSize : ScreenTools.largeFontPointSize
                 text:                   fact.shortDescription
             }
             QGCLabel {
                 width:                  parent.width
                 horizontalAlignment:    Text.AlignHCenter
+                font.pointSize:         ScreenTools.isTinyScreen ? ScreenTools.largeFontPointSize * 2.25 : ScreenTools.largeFontPointSize*2
                 fontSizeMode:           Text.HorizontalFit
                 text:                   fact.enumOrValueString
             }
             QGCLabel {
                 width:                  parent.width
                 horizontalAlignment:    Text.AlignHCenter
-                font.pointSize:         ScreenTools.isTinyScreen ? ScreenTools.smallFontPointSize * 0.75 : ScreenTools.smallFontPointSize
+                font.pointSize:         ScreenTools.isTinyScreen ? ScreenTools.largeFontPointSize : ScreenTools.largeFontPointSize
                 fontSizeMode:           Text.HorizontalFit
                 text:                   fact.units
             }
@@ -174,7 +175,7 @@ Column {
                         sourceComponent:    factGroupList
 
                         property var    factGroup:     _activeVehicle
-                        property string factGroupName: "Vehicle"
+                        property string factGroupName: qsTr("Vehicle")
                     }
 
                     Repeater {

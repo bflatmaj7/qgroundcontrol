@@ -28,7 +28,7 @@ Rectangle {
     border.color:   _isSatellite ? qgcPal.mapWidgetBorderLight : qgcPal.mapWidgetBorderDark
 
     property var    _qgcView:           qgcView
-    property real   _innerRadius:       (width - (_topBottomMargin * 3)) / 4
+    property real   _innerRadius:       (width - (_topBottomMargin * 3)) / 7 //change virtual horizon and compass height
     property real   _outerRadius:       _innerRadius + _topBottomMargin
     property real   _defaultSize:       ScreenTools.defaultFontPixelHeight * (9)
     property real   _sizeRatio:         ScreenTools.isTinyScreen ? (width / _defaultSize) * 0.5 : width / _defaultSize
@@ -53,8 +53,10 @@ Rectangle {
 
     QGCCompassWidget {
         id:                 compass
-        anchors.leftMargin: _spacing
-        anchors.left:       attitude.right
+//        anchors.leftMargin: _spacing
+//        anchors.left:       attitude.right
+        anchors.rightMargin: _topBottomMargin
+        anchors.right:       parent.right
         size:               _innerRadius * 2
         vehicle:            _activeVehicle
         anchors.verticalCenter: parent.verticalCenter

@@ -101,6 +101,152 @@ private:
     uint8_t _id;    // The id for the sensor being tracked. Current support for only a single sensor.
 };
 
+
+class VehicleMeteoFactGroup : public FactGroup
+{
+    Q_OBJECT
+
+public:
+    VehicleMeteoFactGroup(QObject* parent = NULL);
+    Q_PROPERTY(Fact* temperature             READ temperature             CONSTANT)
+    Q_PROPERTY(Fact* humidity                READ humidity                CONSTANT)
+    Q_PROPERTY(Fact* t_pot_v                 READ t_pot_v                 CONSTANT)
+    Q_PROPERTY(Fact* q_hu                    READ q_hu                    CONSTANT)
+    Fact* temperature         (void) { return &_temperatureFact; }
+    Fact* humidity            (void) { return &_humidityFact; }
+    Fact* t_pot_v             (void) { return &_t_pot_vFact; }
+    Fact* q_hu                (void) { return &_q_huFact; }
+
+    static const char* _temperatureFactName;
+    static const char* _humidityFactName;
+    static const char* _t_pot_vFactName;
+    static const char* _q_huFactName;
+
+private:
+    Fact        _temperatureFact;
+    Fact        _humidityFact;
+    Fact        _t_pot_vFact;
+    Fact        _q_huFact;
+};
+
+class VehicleInsFactGroup : public FactGroup
+{
+    Q_OBJECT
+
+public:
+    VehicleInsFactGroup(QObject* parent = NULL);
+    Q_PROPERTY(Fact* roll                 READ roll                 CONSTANT)
+    Q_PROPERTY(Fact* pitch                READ pitch                CONSTANT)
+    Q_PROPERTY(Fact* yaw                  READ yaw                  CONSTANT)
+    Q_PROPERTY(Fact* ax                   READ ax                   CONSTANT)
+    Q_PROPERTY(Fact* ay                   READ ay                   CONSTANT)
+    Q_PROPERTY(Fact* az                   READ az                   CONSTANT)
+    Q_PROPERTY(Fact* gx                   READ gx                   CONSTANT)
+    Q_PROPERTY(Fact* gy                   READ gy                   CONSTANT)
+    Q_PROPERTY(Fact* gz                   READ gz                   CONSTANT)
+    Q_PROPERTY(Fact* mx                   READ mx                   CONSTANT)
+    Q_PROPERTY(Fact* my                   READ my                   CONSTANT)
+    Q_PROPERTY(Fact* mz                   READ mz                   CONSTANT)
+    Q_PROPERTY(Fact* vns                  READ vns                  CONSTANT)
+    Q_PROPERTY(Fact* vew                  READ vew                  CONSTANT)
+    Q_PROPERTY(Fact* vud                  READ vud                  CONSTANT)
+    Fact* roll         (void) { return &_rollFact; }
+    Fact* pitch            (void) { return &_pitchFact; }
+    Fact* yaw            (void) { return &_yawFact; }
+    Fact* ax             (void) { return &_axFact; }
+    Fact* ay             (void) { return &_ayFact; }
+    Fact* az             (void) { return &_azFact; }
+    Fact* gx             (void) { return &_gxFact; }
+    Fact* gy             (void) { return &_gyFact; }
+    Fact* gz             (void) { return &_gzFact; }
+    Fact* mx             (void) { return &_mxFact; }
+    Fact* my             (void) { return &_myFact; }
+    Fact* mz             (void) { return &_mzFact; }
+    Fact* vns            (void) { return &_vnsFact; }
+    Fact* vew            (void) { return &_vewFact; }
+    Fact* vud            (void) { return &_vudFact; }
+
+    static const char* _rollFactName;
+    static const char* _pitchFactName;
+    static const char* _yawFactName;
+    static const char* _axFactName;
+    static const char* _ayFactName;
+    static const char* _azFactName;
+    static const char* _gxFactName;
+    static const char* _gyFactName;
+    static const char* _gzFactName;
+    static const char* _mxFactName;
+    static const char* _myFactName;
+    static const char* _mzFactName;
+    static const char* _vnsFactName;
+    static const char* _vewFactName;
+    static const char* _vudFactName;
+
+private:
+    Fact        _rollFact;
+    Fact        _pitchFact;
+    Fact        _yawFact;
+    Fact        _axFact;
+    Fact        _ayFact;
+    Fact        _azFact;
+    Fact        _gxFact;
+    Fact        _gyFact;
+    Fact        _gzFact;
+    Fact        _mxFact;
+    Fact        _myFact;
+    Fact        _mzFact;
+    Fact        _vnsFact;
+    Fact        _vewFact;
+    Fact        _vudFact;
+};
+
+class VehicleMhpFactGroup : public FactGroup
+{
+    Q_OBJECT
+
+public:
+    VehicleMhpFactGroup(QObject* parent = NULL);
+    Q_PROPERTY(Fact* dp0                  READ dp0                 CONSTANT)
+    Q_PROPERTY(Fact* dp1                  READ dp1                 CONSTANT)
+    Q_PROPERTY(Fact* dp2                  READ dp2                 CONSTANT)
+    Q_PROPERTY(Fact* dp3                  READ dp3                 CONSTANT)
+    Q_PROPERTY(Fact* dp4                  READ dp4                 CONSTANT)
+    Q_PROPERTY(Fact* dpS                  READ dpS                 CONSTANT)
+    Q_PROPERTY(Fact* tas                  READ tas                 CONSTANT)
+    Q_PROPERTY(Fact* aoa                  READ aoa                 CONSTANT)
+    Q_PROPERTY(Fact* aos                  READ aos                 CONSTANT)
+    Fact* dp0            (void) { return &_dp0Fact; }
+    Fact* dp1            (void) { return &_dp1Fact; }
+    Fact* dp2            (void) { return &_dp2Fact; }
+    Fact* dp3            (void) { return &_dp3Fact; }
+    Fact* dp4            (void) { return &_dp4Fact; }
+    Fact* dpS            (void) { return &_dpSFact; }
+    Fact* tas            (void) { return &_tasFact; }
+    Fact* aoa            (void) { return &_aoaFact; }
+    Fact* aos            (void) { return &_aosFact; }
+
+    static const char* _dp0FactName;
+    static const char* _dp1FactName;
+    static const char* _dp2FactName;
+    static const char* _dp3FactName;
+    static const char* _dp4FactName;
+    static const char* _dpSFactName;
+    static const char* _tasFactName;
+    static const char* _aoaFactName;
+    static const char* _aosFactName;
+
+private:
+    Fact        _dp0Fact;
+    Fact        _dp1Fact;
+    Fact        _dp2Fact;
+    Fact        _dp3Fact;
+    Fact        _dp4Fact;
+    Fact        _dpSFact;
+    Fact        _tasFact;
+    Fact        _aoaFact;
+    Fact        _aosFact;
+};
+
 class VehicleSetpointFactGroup : public FactGroup
 {
     Q_OBJECT
@@ -582,10 +728,11 @@ public:
     Q_INVOKABLE void guidedModeChangeAltitude(double altitudeChange);
 
     /// Command vehicle to orbit given center point
-    ///     @param centerCoord Orit around this point
+    ///     @param centerCoord Center Coordinates
     ///     @param radius Distance from vehicle to centerCoord
-    ///     @param amslAltitude Desired vehicle altitude
-    Q_INVOKABLE void guidedModeOrbit(const QGeoCoordinate& centerCoord, double radius, double amslAltitude);
+    ///     @param velocity Orbit velocity (positive CW, negative CCW)
+    ///     @param altitude Desired Vehicle Altitude
+    Q_INVOKABLE void guidedModeOrbit(const QGeoCoordinate& centerCoord = QGeoCoordinate(), double radius = NAN, double velocity = NAN, double altitude = NAN);
 
     /// Command vehicle to pause at current location. If vehicle supports guide mode, vehicle will be left
     /// in guided mode after pause.
@@ -813,6 +960,11 @@ public:
     Fact* flightDistance    (void) { return &_flightDistanceFact; }
     Fact* distanceToHome    (void) { return &_distanceToHomeFact; }
     Fact* hobbs             (void) { return &_hobbsFact; }
+    Fact* temp              (void) { return &_tempFact; }
+    Fact* hum               (void) { return &_humFact; }
+    Fact* windSpeed         (void) { return &_windSpeedFact; }
+    Fact* windDir           (void) { return &_windDirFact; }
+    Fact* windVert          (void) { return &_windVertFact; }
 
     FactGroup* gpsFactGroup             (void) { return &_gpsFactGroup; }
     FactGroup* battery1FactGroup        (void) { return &_battery1FactGroup; }
@@ -840,7 +992,6 @@ public:
     ///     @param showError true: Display error to user if command failed, false:  no error shown
     /// Signals: mavCommandResult on success or failure
     void sendMavCommand(int component, MAV_CMD command, bool showError, float param1 = 0.0f, float param2 = 0.0f, float param3 = 0.0f, float param4 = 0.0f, float param5 = 0.0f, float param6 = 0.0f, float param7 = 0.0f);
-    void sendMavCommandInt(int component, MAV_CMD command, MAV_FRAME frame, bool showError, float param1, float param2, float param3, float param4, double param5, double param6, float param7);
 
     /// Same as sendMavCommand but available from Qml.
     Q_INVOKABLE void sendCommand(int component, int command, bool showError, double param1 = 0.0f, double param2 = 0.0f, double param3 = 0.0f, double param4 = 0.0f, double param5 = 0.0f, double param6 = 0.0f, double param7 = 0.0f)
@@ -1088,6 +1239,9 @@ private:
     void _handleAttitudeQuaternion(mavlink_message_t& message);
     void _handleAttitudeTarget(mavlink_message_t& message);
     void _handleDistanceSensor(mavlink_message_t& message);
+    void _handleMeteo(mavlink_message_t& message);
+    void _handleIns(mavlink_message_t& message);
+    void _handleMhp(mavlink_message_t& message);
     // ArduPilot dialect messages
 #if !defined(NO_ARDUPILOT_DIALECT)
     void _handleCameraFeedback(const mavlink_message_t& message);
@@ -1180,12 +1334,10 @@ private:
     QGCCameraManager* _cameras;
 
     typedef struct {
-        int         component;
-        bool        commandInt; // true: use COMMAND_INT, false: use COMMAND_LONG
-        MAV_CMD     command;
-        MAV_FRAME   frame;
-        double      rgParam[7];
-        bool        showError;
+        int     component;
+        MAV_CMD command;
+        float   rgParam[7];
+        bool    showError;
     } MavCommandQueueEntry_t;
 
     QList<MavCommandQueueEntry_t>   _mavCommandQueue;
@@ -1294,6 +1446,11 @@ private:
     Fact _flightTimeFact;
     Fact _distanceToHomeFact;
     Fact _hobbsFact;
+    Fact _tempFact;
+    Fact _humFact;
+    Fact _windSpeedFact;
+    Fact _windDirFact;
+    Fact _windVertFact;
 
     VehicleGPSFactGroup             _gpsFactGroup;
     VehicleBatteryFactGroup         _battery1FactGroup;
@@ -1304,6 +1461,9 @@ private:
     VehicleClockFactGroup           _clockFactGroup;
     VehicleSetpointFactGroup        _setpointFactGroup;
     VehicleDistanceSensorFactGroup  _distanceSensorFactGroup;
+    VehicleMeteoFactGroup           _meteoFactGroup;
+    VehicleInsFactGroup             _insFactGroup;
+    VehicleMhpFactGroup             _mhpFactGroup;
 
     static const char* _rollFactName;
     static const char* _pitchFactName;
@@ -1320,6 +1480,11 @@ private:
     static const char* _flightTimeFactName;
     static const char* _distanceToHomeFactName;
     static const char* _hobbsFactName;
+    static const char* _tempFactName;
+    static const char* _humFactName;
+    static const char* _windSpeedFactName;
+    static const char* _windDirFactName;
+    static const char* _windVertFactName;
 
     static const char* _gpsFactGroupName;
     static const char* _battery1FactGroupName;
@@ -1329,6 +1494,9 @@ private:
     static const char* _temperatureFactGroupName;
     static const char* _clockFactGroupName;
     static const char* _distanceSensorFactGroupName;
+    static const char* _meteoFactGroupName;
+    static const char* _insFactGroupName;
+    static const char* _mhpFactGroupName;
 
     static const int _vehicleUIUpdateRateMSecs = 100;
 

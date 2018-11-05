@@ -126,16 +126,6 @@ Rectangle {
                     Layout.fillWidth:   true
                 }
 
-                QGCLabel {
-                    text:       qsTr("Gimbal pitch")
-                    visible:    missionItem.cameraCalc.isManualCamera
-                }
-                FactTextField {
-                    fact:               missionItem.gimbalPitch
-                    Layout.fillWidth:   true
-                    visible:            missionItem.cameraCalc.isManualCamera
-                }
-
                 QGCCheckBox {
                     text:               qsTr("Relative altitude")
                     checked:            missionItem.altitudeRelative
