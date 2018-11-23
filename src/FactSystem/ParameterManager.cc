@@ -1159,7 +1159,7 @@ void ParameterManager::_checkInitialLoadComplete(void)
 
     // Signal load complete
     _parametersReady = true;
-    _vehicle->autopilotPlugin()->parametersReadyPreChecks();
+//    _vehicle->autopilotPlugin()->parametersReadyPreChecks();
     emit parametersReadyChanged(true);
     emit missingParametersChanged(_missingParameters);
 }

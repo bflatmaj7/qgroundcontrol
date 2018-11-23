@@ -46,14 +46,14 @@
     "shortDescription": "Ground Speed",
     "type":             "double",
     "decimalPlaces":    1,
-    "units":            "m/s"
+    "units":            "km/h"
 },
 {
     "name":             "airSpeed",
     "shortDescription": "Air Speed",
     "type":             "double",
     "decimalPlaces":    1,
-    "units":            "m/s"
+    "units":            "km/h"
 },
 {
     "name":             "climbRate",
@@ -104,6 +104,13 @@
     "units":            "°C"
 },
 {
+    "name":             "tpot",
+    "shortDescription": "Pot. temperature",
+    "type":             "double",
+    "decimalPlaces":    1,
+    "units":            "K"
+},
+{
     "name":             "hum",
     "shortDescription": "Meteo humidity",
     "type":             "double",
@@ -115,7 +122,7 @@
     "shortDescription": "Wind Speed",
     "type":             "double",
     "decimalPlaces":    1,
-    "units":            "m/s"
+    "units":            "km/h"
 },
 {
     "name":             "windDir",

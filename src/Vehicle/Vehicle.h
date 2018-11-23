@@ -1447,6 +1447,7 @@ private:
     Fact _distanceToHomeFact;
     Fact _hobbsFact;
     Fact _tempFact;
+    Fact _tpotFact;
     Fact _humFact;
     Fact _windSpeedFact;
     Fact _windDirFact;
@@ -1481,6 +1482,7 @@ private:
     static const char* _distanceToHomeFactName;
     static const char* _hobbsFactName;
     static const char* _tempFactName;
+    static const char* _tpotFactName;
     static const char* _humFactName;
     static const char* _windSpeedFactName;
     static const char* _windDirFactName;

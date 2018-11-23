@@ -68,6 +68,7 @@ const char* Vehicle::_flightTimeFactName =          "flightTime";
 const char* Vehicle::_distanceToHomeFactName =      "distanceToHome";
 const char* Vehicle::_hobbsFactName =               "hobbs";
 const char* Vehicle::_tempFactName =                "temp";
+const char* Vehicle::_tpotFactName =                "tpot";
 const char* Vehicle::_humFactName =                 "hum";
 const char* Vehicle::_windSpeedFactName =           "windSpeed";
 const char* Vehicle::_windDirFactName =             "windDir";
@@ -195,6 +196,7 @@ Vehicle::Vehicle(LinkInterface*             link,
     , _distanceToHomeFact   (0, _distanceToHomeFactName,    FactMetaData::valueTypeDouble)
     , _hobbsFact            (0, _hobbsFactName,             FactMetaData::valueTypeString)
     , _tempFact             (0, _tempFactName,              FactMetaData::valueTypeDouble)
+    , _tpotFact             (0, _tpotFactName,              FactMetaData::valueTypeDouble)
     , _humFact              (0, _humFactName,               FactMetaData::valueTypeDouble)
     , _windSpeedFact        (0, _windSpeedFactName,         FactMetaData::valueTypeDouble)
     , _windDirFact          (0, _windDirFactName,           FactMetaData::valueTypeDouble)
@@ -387,6 +389,7 @@ Vehicle::Vehicle(MAV_AUTOPILOT              firmwareType,
     , _distanceToHomeFact   (0, _distanceToHomeFactName,    FactMetaData::valueTypeDouble)
     , _hobbsFact            (0, _hobbsFactName,             FactMetaData::valueTypeString)
     , _tempFact             (0, _tempFactName,              FactMetaData::valueTypeDouble)
+    , _tpotFact             (0, _tpotFactName,              FactMetaData::valueTypeDouble)
     , _humFact              (0, _humFactName,               FactMetaData::valueTypeDouble)
     , _windSpeedFact        (0, _windSpeedFactName,         FactMetaData::valueTypeDouble)
     , _windDirFact          (0, _windDirFactName,           FactMetaData::valueTypeDouble)
@@ -462,6 +465,7 @@ void Vehicle::_commonInit(void)
     _addFact(&_flightTimeFact,          _flightTimeFactName);
     _addFact(&_distanceToHomeFact,      _distanceToHomeFactName);
     _addFact(&_tempFact,                _tempFactName);
+    _addFact(&_tpotFact,                _tpotFactName);
     _addFact(&_humFact,                 _humFactName);
     _addFact(&_windSpeedFact,           _windSpeedFactName);
     _addFact(&_windDirFact,             _windDirFactName);
@@ -880,6 +884,7 @@ void Vehicle::_handleMeteo(mavlink_message_t& message)
     mavlink_msg_meteo_decode(&message, &meteo);\
 
     _tempFact.setRawValue(qIsNaN(meteo.temperature) ? 0 : meteo.temperature);
+    _tpotFact.setRawValue(qIsNaN(meteo.t_pot_v) ? 0 : meteo.t_pot_v);
     _humFact.setRawValue(qIsNaN(meteo.humidity) ? 0 : meteo.humidity);
 }
 
@@ -891,7 +896,7 @@ void Vehicle::_handleIns(mavlink_message_t& message)
 
     _climbRateFact.setRawValue(qIsNaN(ins.vud) ? 0 : ins.vud);
     double groundspeed = sqrt(pow(ins.vns,2)+pow(ins.vew,2));
-    _groundSpeedFact.setRawValue(qIsNaN(groundspeed) ? 0 : groundspeed);
+    _groundSpeedFact.setRawValue(qIsNaN(groundspeed) ? 0 : groundspeed*3.6);
 }
 
 void Vehicle::_handleMhp(mavlink_message_t& message)
@@ -900,7 +905,7 @@ void Vehicle::_handleMhp(mavlink_message_t& message)
 
     mavlink_msg_mhp_decode(&message, &mhp);\
 
-    _airSpeedFact.setRawValue(qIsNaN(mhp.tas) ? 0 : mhp.tas);
+    _airSpeedFact.setRawValue(qIsNaN(mhp.tas) ? 0 : mhp.tas*3.6);
 }
 
 void Vehicle::_handleAttitudeTarget(mavlink_message_t& message)
