@@ -112,7 +112,7 @@ public class QGCActivity extends QtActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         PowerManager pm = (PowerManager)m_instance.getSystemService(Context.POWER_SERVICE);
-        m_wl = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "QGroundControl");
+        m_wl = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "QGroundControl_AWP");
         if(m_wl != null) {
             m_wl.acquire();
             Log.i(TAG, "SCREEN_BRIGHT_WAKE_LOCK acquired.");

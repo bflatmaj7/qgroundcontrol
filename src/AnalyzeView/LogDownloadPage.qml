@@ -151,22 +151,25 @@ AnalyzePage {
                             var o = logController.model.get(rowIndex)
                             if (o) o.selected = true
                         })
-                        fileDialog.qgcView =        logDownloadPage
-                        fileDialog.title =          qsTr("Select save directory")
-                        fileDialog.selectExisting = true
-                        fileDialog.folder =         QGroundControl.settingsManager.appSettings.logSavePath
-                        fileDialog.selectFolder =   true
-                        fileDialog.openForLoad()
+
+                        logController.download('/sdcard')
+
+//                        fileDialog.qgcView =        logDownloadPage
+//                        fileDialog.title =          qsTr("Select save directory")
+//                        fileDialog.selectExisting = true
+//                        fileDialog.folder =         QGroundControl.settingsManager.appSettings.logSavePath
+//                        fileDialog.selectFolder =   true
+//                        fileDialog.openForLoad()
                     }
 
-                    QGCFileDialog {
-                        id: fileDialog
+//                    QGCFileDialog {
+//                        id: fileDialog
 
-                        onAcceptedForLoad: {
-                            logController.download(file)
-                            close()
-                        }
-                    }
+//                        onAcceptedForLoad: {
+//                            logController.download(file)
+//                            close()
+//                        }
+//                    }
                 }
 
                 QGCButton {
