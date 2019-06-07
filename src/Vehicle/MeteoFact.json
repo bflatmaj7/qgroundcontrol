@@ -26,5 +26,12 @@
     "type":             "double",
     "decimalPlaces":    2,
     "units":            "g/kg"
+},
+{
+    "name":             "pt100",
+    "shortDescription": "pt100",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "units":            "C"
 }
 ]

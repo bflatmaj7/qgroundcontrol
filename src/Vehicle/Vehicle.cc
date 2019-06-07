@@ -70,6 +70,7 @@ const char* Vehicle::_hobbsFactName =               "hobbs";
 const char* Vehicle::_tempFactName =                "temp";
 const char* Vehicle::_tpotFactName =                "tpot";
 const char* Vehicle::_humFactName =                 "hum";
+const char* Vehicle::_pt100FactName =               "pt100";
 const char* Vehicle::_windSpeedFactName =           "windSpeed";
 const char* Vehicle::_windDirFactName =             "windDir";
 const char* Vehicle::_windVertFactName =            "windVert";
@@ -198,6 +199,7 @@ Vehicle::Vehicle(LinkInterface*             link,
     , _tempFact             (0, _tempFactName,              FactMetaData::valueTypeDouble)
     , _tpotFact             (0, _tpotFactName,              FactMetaData::valueTypeDouble)
     , _humFact              (0, _humFactName,               FactMetaData::valueTypeDouble)
+    , _pt100Fact              (0, _pt100FactName,               FactMetaData::valueTypeDouble)
     , _windSpeedFact        (0, _windSpeedFactName,         FactMetaData::valueTypeDouble)
     , _windDirFact          (0, _windDirFactName,           FactMetaData::valueTypeDouble)
     , _windVertFact         (0, _windVertFactName,          FactMetaData::valueTypeDouble)
@@ -391,6 +393,7 @@ Vehicle::Vehicle(MAV_AUTOPILOT              firmwareType,
     , _tempFact             (0, _tempFactName,              FactMetaData::valueTypeDouble)
     , _tpotFact             (0, _tpotFactName,              FactMetaData::valueTypeDouble)
     , _humFact              (0, _humFactName,               FactMetaData::valueTypeDouble)
+    , _pt100Fact            (0, _pt100FactName,             FactMetaData::valueTypeDouble)
     , _windSpeedFact        (0, _windSpeedFactName,         FactMetaData::valueTypeDouble)
     , _windDirFact          (0, _windDirFactName,           FactMetaData::valueTypeDouble)
     , _windVertFact         (0, _windVertFactName,          FactMetaData::valueTypeDouble)
@@ -467,6 +470,7 @@ void Vehicle::_commonInit(void)
     _addFact(&_tempFact,                _tempFactName);
     _addFact(&_tpotFact,                _tpotFactName);
     _addFact(&_humFact,                 _humFactName);
+    _addFact(&_pt100Fact,               _pt100FactName);
     _addFact(&_windSpeedFact,           _windSpeedFactName);
     _addFact(&_windDirFact,             _windDirFactName);
     _addFact(&_windVertFact,            _windVertFactName);
@@ -886,6 +890,7 @@ void Vehicle::_handleMeteo(mavlink_message_t& message)
     _tempFact.setRawValue(qIsNaN(meteo.temperature) ? 0 : meteo.temperature);
     _tpotFact.setRawValue(qIsNaN(meteo.t_pot_v) ? 0 : meteo.t_pot_v);
     _humFact.setRawValue(qIsNaN(meteo.humidity) ? 0 : meteo.humidity);
+    _pt100Fact.setRawValue(qIsNaN(meteo.pt100) ? 0 : meteo.pt100);
 }
 
 void Vehicle::_handleIns(mavlink_message_t& message)
@@ -3744,6 +3749,7 @@ const char* VehicleMeteoFactGroup::_temperatureFactName =     "temperature";
 const char* VehicleMeteoFactGroup::_humidityFactName =    "humidity";
 const char* VehicleMeteoFactGroup::_t_pot_vFactName =    "t_pot_v";
 const char* VehicleMeteoFactGroup::_q_huFactName =    "q_hu";
+const char* VehicleMeteoFactGroup::_pt100FactName =    "pt100";
 
 VehicleMeteoFactGroup::VehicleMeteoFactGroup(QObject* parent)
     : FactGroup             (1000, ":/json/Vehicle/MeteoFact.json", parent)
@@ -3751,17 +3757,20 @@ VehicleMeteoFactGroup::VehicleMeteoFactGroup(QObject* parent)
     , _humidityFact         (0, _humidityFactName,          FactMetaData::valueTypeDouble)
     , _t_pot_vFact          (0, _t_pot_vFactName,           FactMetaData::valueTypeDouble)
     , _q_huFact             (0, _q_huFactName,              FactMetaData::valueTypeDouble)
+    , _pt100Fact            (0, _pt100FactName,             FactMetaData::valueTypeDouble)
 {
     _addFact(&_temperatureFact,         _temperatureFactName);
     _addFact(&_humidityFact,            _humidityFactName);
     _addFact(&_t_pot_vFact,             _t_pot_vFactName);
     _addFact(&_q_huFact,                _q_huFactName);
+    _addFact(&_pt100Fact,               _pt100FactName);
 
     // Start out as not available "--.--"
     _temperatureFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
     _humidityFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
     _t_pot_vFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
     _q_huFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _pt100Fact.setRawValue(std::numeric_limits<float>::quiet_NaN());
 }
 
 const char* VehicleInsFactGroup::_rollFactName =     "roll";

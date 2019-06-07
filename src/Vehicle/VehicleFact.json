@@ -118,6 +118,13 @@
     "units":            "%"
 },
 {
+    "name":             "pt100",
+    "shortDescription": "PT100 temperature",
+    "type":             "double",
+    "decimalPlaces":    1,
+    "units":            "%"
+},
+{
     "name":             "windSpeed",
     "shortDescription": "Wind Speed",
     "type":             "double",

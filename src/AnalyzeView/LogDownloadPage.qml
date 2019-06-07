@@ -152,6 +152,41 @@ AnalyzePage {
                             if (o) o.selected = true
                         })
 
+
+                        fileDialog.qgcView =        logDownloadPage
+                        fileDialog.title =          qsTr("Select save directory")
+                        fileDialog.selectExisting = true
+                        fileDialog.folder =         QGroundControl.settingsManager.appSettings.logSavePath
+                        fileDialog.selectFolder =   true
+                        fileDialog.openForLoad()
+                    }
+
+                    QGCFileDialog {
+                        id: fileDialog
+
+                        onAcceptedForLoad: {
+                            logController.download(file)
+                            close()
+                        }
+                    }
+                }
+
+                QGCButton {
+                    enabled:    !logController.requestingList && !logController.downloadingLogs && tableView.selection.count > 0
+                    text:       qsTr("Download Android")
+                    width:      _butttonWidth
+                    onClicked: {
+                        //-- Clear selection
+                        for(var i = 0; i < logController.model.count; i++) {
+                            var o = logController.model.get(i)
+                            if (o) o.selected = false
+                        }
+                        //-- Flag selected log files
+                        tableView.selection.forEach(function(rowIndex){
+                            var o = logController.model.get(rowIndex)
+                            if (o) o.selected = true
+                        })
+
                         logController.download('/sdcard')
 
 //                        fileDialog.qgcView =        logDownloadPage
@@ -162,14 +197,6 @@ AnalyzePage {
 //                        fileDialog.openForLoad()
                     }
 
-//                    QGCFileDialog {
-//                        id: fileDialog
-
-//                        onAcceptedForLoad: {
-//                            logController.download(file)
-//                            close()
-//                        }
-//                    }
                 }
 
                 QGCButton {

@@ -110,23 +110,27 @@ public:
     VehicleMeteoFactGroup(QObject* parent = NULL);
     Q_PROPERTY(Fact* temperature             READ temperature             CONSTANT)
     Q_PROPERTY(Fact* humidity                READ humidity                CONSTANT)
+    Q_PROPERTY(Fact* pt100                   READ pt100                   CONSTANT)
     Q_PROPERTY(Fact* t_pot_v                 READ t_pot_v                 CONSTANT)
     Q_PROPERTY(Fact* q_hu                    READ q_hu                    CONSTANT)
     Fact* temperature         (void) { return &_temperatureFact; }
     Fact* humidity            (void) { return &_humidityFact; }
     Fact* t_pot_v             (void) { return &_t_pot_vFact; }
     Fact* q_hu                (void) { return &_q_huFact; }
+    Fact* pt100               (void) { return &_pt100Fact; }
 
     static const char* _temperatureFactName;
     static const char* _humidityFactName;
     static const char* _t_pot_vFactName;
     static const char* _q_huFactName;
+    static const char* _pt100FactName;
 
 private:
     Fact        _temperatureFact;
     Fact        _humidityFact;
     Fact        _t_pot_vFact;
     Fact        _q_huFact;
+    Fact        _pt100Fact;
 };
 
 class VehicleInsFactGroup : public FactGroup
@@ -962,6 +966,7 @@ public:
     Fact* hobbs             (void) { return &_hobbsFact; }
     Fact* temp              (void) { return &_tempFact; }
     Fact* hum               (void) { return &_humFact; }
+    Fact* pt100             (void) { return &_pt100Fact; }
     Fact* windSpeed         (void) { return &_windSpeedFact; }
     Fact* windDir           (void) { return &_windDirFact; }
     Fact* windVert          (void) { return &_windVertFact; }
@@ -1449,6 +1454,7 @@ private:
     Fact _tempFact;
     Fact _tpotFact;
     Fact _humFact;
+    Fact _pt100Fact;
     Fact _windSpeedFact;
     Fact _windDirFact;
     Fact _windVertFact;
@@ -1484,6 +1490,7 @@ private:
     static const char* _tempFactName;
     static const char* _tpotFactName;
     static const char* _humFactName;
+    static const char* _pt100FactName;
     static const char* _windSpeedFactName;
     static const char* _windDirFactName;
     static const char* _windVertFactName;
