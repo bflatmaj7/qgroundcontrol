@@ -61,6 +61,8 @@ const char* Vehicle::_yawRateFactName =             "yawRate";
 const char* Vehicle::_airSpeedFactName =            "airSpeed";
 const char* Vehicle::_groundSpeedFactName =         "groundSpeed";
 const char* Vehicle::_climbRateFactName =           "climbRate";
+const char* Vehicle::_vnsFactName =                 "vns";
+const char* Vehicle::_vewFactName =                 "vew";
 const char* Vehicle::_altitudeRelativeFactName =    "altitudeRelative";
 const char* Vehicle::_altitudeAMSLFactName =        "altitudeAMSL";
 const char* Vehicle::_flightDistanceFactName =      "flightDistance";
@@ -71,6 +73,8 @@ const char* Vehicle::_tempFactName =                "temp";
 const char* Vehicle::_tpotFactName =                "tpot";
 const char* Vehicle::_humFactName =                 "hum";
 const char* Vehicle::_pt100FactName =               "pt100";
+const char* Vehicle::_aoaFactName =                 "aoa";
+const char* Vehicle::_aosFactName =                 "aos";
 const char* Vehicle::_windSpeedFactName =           "windSpeed";
 const char* Vehicle::_windDirFactName =             "windDir";
 const char* Vehicle::_windVertFactName =            "windVert";
@@ -190,6 +194,8 @@ Vehicle::Vehicle(LinkInterface*             link,
     , _groundSpeedFact      (0, _groundSpeedFactName,       FactMetaData::valueTypeDouble)
     , _airSpeedFact         (0, _airSpeedFactName,          FactMetaData::valueTypeDouble)
     , _climbRateFact        (0, _climbRateFactName,         FactMetaData::valueTypeDouble)
+    , _vnsFact              (0, _vnsFactName,               FactMetaData::valueTypeDouble)
+    , _vewFact              (0, _vewFactName,               FactMetaData::valueTypeDouble)
     , _altitudeRelativeFact (0, _altitudeRelativeFactName,  FactMetaData::valueTypeDouble)
     , _altitudeAMSLFact     (0, _altitudeAMSLFactName,      FactMetaData::valueTypeDouble)
     , _flightDistanceFact   (0, _flightDistanceFactName,    FactMetaData::valueTypeDouble)
@@ -199,7 +205,9 @@ Vehicle::Vehicle(LinkInterface*             link,
     , _tempFact             (0, _tempFactName,              FactMetaData::valueTypeDouble)
     , _tpotFact             (0, _tpotFactName,              FactMetaData::valueTypeDouble)
     , _humFact              (0, _humFactName,               FactMetaData::valueTypeDouble)
-    , _pt100Fact              (0, _pt100FactName,               FactMetaData::valueTypeDouble)
+    , _pt100Fact            (0, _pt100FactName,             FactMetaData::valueTypeDouble)
+    , _aoaFact              (0, _aoaFactName,               FactMetaData::valueTypeDouble)
+    , _aosFact              (0, _aosFactName,               FactMetaData::valueTypeDouble)
     , _windSpeedFact        (0, _windSpeedFactName,         FactMetaData::valueTypeDouble)
     , _windDirFact          (0, _windDirFactName,           FactMetaData::valueTypeDouble)
     , _windVertFact         (0, _windVertFactName,          FactMetaData::valueTypeDouble)
@@ -471,6 +479,8 @@ void Vehicle::_commonInit(void)
     _addFact(&_tpotFact,                _tpotFactName);
     _addFact(&_humFact,                 _humFactName);
     _addFact(&_pt100Fact,               _pt100FactName);
+    _addFact(&_aoaFact,                 _aoaFactName);
+    _addFact(&_aosFact,                 _aosFactName);
     _addFact(&_windSpeedFact,           _windSpeedFactName);
     _addFact(&_windDirFact,             _windDirFactName);
     _addFact(&_windVertFact,            _windVertFactName);
@@ -899,9 +909,14 @@ void Vehicle::_handleIns(mavlink_message_t& message)
 
     mavlink_msg_ins_decode(&message, &ins);\
 
-    _climbRateFact.setRawValue(qIsNaN(ins.vud) ? 0 : ins.vud);
     double groundspeed = sqrt(pow(ins.vns,2)+pow(ins.vew,2));
     _groundSpeedFact.setRawValue(qIsNaN(groundspeed) ? 0 : groundspeed*3.6);
+    _vnsFact.setRawValue(qIsNaN(ins.vns) ? 0 : ins.vns);
+    _vewFact.setRawValue(qIsNaN(ins.vew) ? 0 : ins.vew);
+    _climbRateFact.setRawValue(qIsNaN(ins.vud) ? 0 : ins.vud);
+    _rollFact.setRawValue(qIsNaN(ins.roll) ? 0 : ins.roll);
+    _pitchFact.setRawValue(qIsNaN(ins.pitch) ? 0 : ins.pitch);
+    _headingFact.setRawValue(qIsNaN(ins.yaw) ? 0 : ins.yaw);
 }
 
 void Vehicle::_handleMhp(mavlink_message_t& message)
@@ -910,7 +925,180 @@ void Vehicle::_handleMhp(mavlink_message_t& message)
 
     mavlink_msg_mhp_decode(&message, &mhp);\
 
-    _airSpeedFact.setRawValue(qIsNaN(mhp.tas) ? 0 : mhp.tas*3.6);
+    _calcFlow(mhp.dp0,mhp.dp1,mhp.dp2,mhp.dp3,mhp.dp4,mhp.dpS);
+    _calcWind();
+//    _airSpeedFact.setRawValue(qIsNaN(mhp.tas) ? 0 : mhp.tas*3.6);
+}
+
+void Vehicle::_calcFlow(float _dp0,float _dp1,float _dp2,float _dp3,float _dp4,float _dpS)
+{
+
+//    test
+//    _dp0 = 600;
+//    _dp1 = -220;
+//    _dp2 = -92;
+//    _dp3 = -19;
+//    _dp4 = -126.4;
+//    _dpS = 36020;
+
+    float dP = 1.0/4.0 * (_dp1 + _dp2 + _dp3 + _dp4) ;
+    // Calculate coefficients k_a and k_b
+    float k_a = (_dp1-_dp3)/(_dp0-dP) ; // alpha
+    float k_b = (_dp2-_dp4)/(_dp0-dP) ; // beta
+
+    float M_rough = sqrt(2*_dp0/(_dpS*1.4));
+
+    // Calculate the dimensionless pressure coefficients
+    float Si_a=0.0;
+    float Si_b=0.0;
+    float Si_q=0.0;
+    float Si_p=0.0;
+    float q = 0.0;
+    float ps = 0.0;
+    float temperature = pt100()->rawValue().toFloat();
+    float q_hu = 0;
+
+    float c_p = (1.0+0.87*q_hu)*cp_par;
+    float c_v = (1.0+0.97*q_hu)*cv_par;
+    float R = c_p-c_v;
+    float kappa_hum = R/c_p;
+    int poly_order = 12;
+    for(int i=0;i<poly_order;i++)
+    {
+        float Sj_a=0.0;
+        float Sj_b=0.0;
+        float Sj_q=0.0;
+        float Sj_p=0.0;
+        for(int j=0;j<poly_order;j++)
+          {
+            if (M_rough<0.045){
+                Sj_a = Sj_a + poly_alpha_0025[i*poly_order+j] * pow(k_b,j);
+                Sj_b = Sj_b + poly_beta_0025[i*poly_order+j] * pow(k_b,j);
+                Sj_q = Sj_q + poly_kq_0025[i*poly_order+j] * pow(k_b,j);
+                Sj_p = Sj_p + poly_kp_0025[i*poly_order+j] * pow(k_b,j);
+            }
+            else if (M_rough>=0.045 && M_rough <0.1){
+                Sj_a = Sj_a + poly_alpha_0070[i*poly_order+j] * pow(k_b,j);
+                Sj_b = Sj_b + poly_beta_0070[i*poly_order+j] * pow(k_b,j);
+                Sj_q = Sj_q + poly_kq_0070[i*poly_order+j] * pow(k_b,j);
+                Sj_p = Sj_p + poly_kp_0070[i*poly_order+j] * pow(k_b,j);
+            }
+            else if (M_rough>=0.1 && M_rough <0.15){
+                Sj_a = Sj_a + poly_alpha_0125[i*poly_order+j] * pow(k_b,j);
+                Sj_b = Sj_b + poly_beta_0125[i*poly_order+j] * pow(k_b,j);
+                Sj_q = Sj_q + poly_kq_0125[i*poly_order+j] * pow(k_b,j);
+                Sj_p = Sj_p + poly_kp_0125[i*poly_order+j] * pow(k_b,j);
+            }
+            else{
+                Sj_a = Sj_a + poly_alpha_0175[i*poly_order+j] * pow(k_b,j);
+                Sj_b = Sj_b + poly_beta_0175[i*poly_order+j] * pow(k_b,j);
+                Sj_q = Sj_q + poly_kq_0175[i*poly_order+j] * pow(k_b,j);
+                Sj_p = Sj_p + poly_kp_0175[i*poly_order+j] * pow(k_b,j);
+            }
+     //		    cout << Sj_a << "  " << a[i][j] << "  " << pow(k_b[k],j) << "  " << k_b[k] << endl;
+            //cout << Sj_b << "  " << b[i][j] << "  " << pow(k_b[k],j) << endl;
+            //cout << Sj_p << "  " << pt[i][j] << "  " << pow(k_b[k],j) << endl;
+          }
+        Si_a = Si_a + Sj_a * pow(k_a,i);
+        Si_b = Si_b + Sj_b * pow(k_a,i);
+        Si_q = Si_q + Sj_q * pow(k_a,i);
+        Si_p = Si_p + Sj_p * pow(k_a,i);
+    }
+    if(sqrt(pow(k_a,2))<1.5 && sqrt(pow(k_b,2))<1.5)
+      {
+        aoa()->setRawValue(Si_a) ; // angle of attack [deg]
+        aos()->setRawValue(Si_b) ; // sideslip angle [deg]
+        q = ((Si_q * (_dp0-dP)) + _dp0) / 100.0 ;  // dynamic pressure [hPa]
+        ps = (_dpS + dP - Si_p * (_dp0-dP)) / 100.0; // static pressure [hPa]
+
+        airSpeed()->setRawValue(sqrt(2.0*c_p*(temperature+273.15)*(pow(((q+ps)/ps),kappa_hum)-1.0))*3.6);
+
+      }
+    else  // dummy values by no airspeed
+      {
+        aoa()->setRawValue(sqrt(-1)) ; // angle of attack [deg]
+        aos()->setRawValue(sqrt(-1)) ; // sideslip angle [deg]
+        airSpeed()->setRawValue(sqrt(-1));
+//		data[index.p_s_c].value[k] = data[index.p_s1].value[k] ;  // static pressure [hPa]
+      }
+
+}
+
+void Vehicle::_calcWind()
+{
+    const float PI = 3.14159265;
+    const float D2R = PI/180;
+    const float R2D = 180/PI;
+    float droll = -0.3;  // in deg
+    float dpitch = 1.92;  // in deg
+    float dyaw = -1.257;  // in deg
+    float dtas = 1.01;
+
+    if (abs(roll()->rawValue().toFloat())<10){
+        // correct the attitude angles and tas using the correction factors
+        float tas = airSpeed()->rawValue().toFloat()/3.6*dtas;
+        float tpitch = (pitch()->rawValue().toFloat() + dpitch) * D2R ;
+        float thead = (heading()->rawValue().toFloat() + dyaw) * D2R ;
+        float troll = (roll()->rawValue().toFloat() + droll) * D2R ;
+
+//        float tas = airSpeed()->rawValue().toFloat()*dtas;
+//        float tpitch = (1.39*D2R+ dpitch) * D2R ;
+//        float thead = (-37.86 + dyaw) * D2R ;
+//        float troll = (-0.75*D2R + droll) * D2R ;
+
+        // The tas vector is calculated in x, y and z-direction (body-fixed
+        // coordinate system using alpha and (corrected) beta
+        float alpha = aoa()->rawValue().toFloat() * D2R;
+        float beta = aos()->rawValue().toFloat() * D2R;
+        float D = sqrt(1.0 +pow((tan(alpha)),2.0) + pow((tan(beta)),2.0) );
+        D = 1 / D;
+        float tas_bx = tas * D;
+        float tas_by = tas * D * tan(beta);
+        float tas_bz = tas * D * tan(alpha); // positive downwards!
+
+        // The true airspeed vector is transformed from body-fixed
+        // into geodetic coordinate system using the transformation matrix
+
+        float tas_gx = ( tas_bx * (cos(tpitch) * cos(thead))) +	( tas_by * (sin(troll) * sin(tpitch) * cos(thead) - cos(troll) * sin(thead))) + ( tas_bz * (cos(troll) * sin(tpitch) * cos(thead) + sin(troll) * sin(thead))) ;
+        float tas_gy = ( tas_bx * (cos(tpitch) * sin(thead))) +	( tas_by * (sin(troll) * sin(tpitch) * sin(thead) + cos(troll) * cos(thead))) + ( tas_bz * (cos(troll) * sin(tpitch) * sin(thead) - sin(troll) * cos(thead))) ;
+        float tas_gz = ( tas_bx * (-1.0 * sin(tpitch))) + ( tas_by * (sin(troll) * cos(tpitch))) + ( tas_bz * (cos(troll) * cos(tpitch))) ;
+
+        // the true airspeed components (geodetic coord.) are substracted from
+        // the measured groundspeed components (geodetic coord.) to become
+        // the meteorological wind vector.
+
+        float u = _vewFact.rawValue().toFloat() - tas_gy; // Positive in east direction
+        float v = _vnsFact.rawValue().toFloat() - tas_gx; // Positive in north direction
+        float w = -1 * (climbRate()->rawValue().toFloat() - tas_gz); // Positive Upwards
+
+//        float u = -0.46 - tas_gy; // Positive in east direction
+//        float v = 59.2 - tas_gx; // Positive in north direction
+//        float w = -1.91 * (0.83 - tas_gz); // Positive Upwards
+
+        float ff = sqrt( (u*u) + (v*v) ); // windspeed
+        float dd = atan2(u, v) + PI;
+    //		if(v< 0)	dd = dd - PI;
+    //		dd = dd - 2*PI*(float)floor(dd/(2*PI)); // dd between 0 and 2* PI
+        dd = dd * R2D; // in degree
+
+        if (_windAvgCount<_windAvgNo){
+            _ffMean+=ff/_windAvgNo;
+            _ddMean+=dd/_windAvgNo;
+            _wMean+=w/_windAvgNo;
+            _windAvgCount+=1;
+        }
+        else{
+            windSpeed()->setRawValue(_ffMean*3.6);// converions to km/h
+            windDir()->setRawValue(_ddMean);
+            windVert()->setRawValue(_wMean);
+            _ffMean = 0;
+            _ddMean = 0;
+            _wMean = 0;
+            _windAvgCount = 0;
+        }
+
+    }
+
 }
 
 void Vehicle::_handleAttitudeTarget(mavlink_message_t& message)
@@ -1341,13 +1529,13 @@ void Vehicle::_handleWindCov(mavlink_message_t& message)
     float direction = qRadiansToDegrees(qAtan2(wind.wind_y, wind.wind_x));
     float speed = qSqrt(qPow(wind.wind_x, 2) + qPow(wind.wind_y, 2));
 
-    _windFactGroup.direction()->setRawValue(direction);
-    _windFactGroup.speed()->setRawValue(speed);
-    _windFactGroup.verticalSpeed()->setRawValue(0);
+//    _windFactGroup.direction()->setRawValue(direction);
+//    _windFactGroup.speed()->setRawValue(speed);
+//    _windFactGroup.verticalSpeed()->setRawValue(0);
 
-    _windSpeedFact.setRawValue(qIsNaN(speed) ? 0 : speed*3.6);
-    _windDirFact.setRawValue(qIsNaN(direction) ? 0 : direction);
-    _windVertFact.setRawValue(qIsNaN(wind.wind_z) ? 0 : wind.wind_z);
+//    _windSpeedFact.setRawValue(qIsNaN(speed) ? 0 : speed*3.6);
+//    _windDirFact.setRawValue(qIsNaN(direction) ? 0 : direction);
+//    _windVertFact.setRawValue(qIsNaN(wind.wind_z) ? 0 : wind.wind_z);
 }
 
 #if !defined(NO_ARDUPILOT_DIALECT)
@@ -1361,9 +1549,9 @@ void Vehicle::_handleWind(mavlink_message_t& message)
     if (direction < 0) {
         direction += 360;
     }
-    _windFactGroup.direction()->setRawValue(direction);
-    _windFactGroup.speed()->setRawValue(wind.speed);
-    _windFactGroup.verticalSpeed()->setRawValue(wind.speed_z);
+//    _windFactGroup.direction()->setRawValue(direction);
+//    _windFactGroup.speed()->setRawValue(wind.speed);
+//    _windFactGroup.verticalSpeed()->setRawValue(wind.speed_z);
 }
 #endif
 

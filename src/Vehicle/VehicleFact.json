@@ -125,6 +125,20 @@
     "units":            "%"
 },
 {
+    "name":             "aoa",
+    "shortDescription": "Angle of Attack",
+    "type":             "double",
+    "decimalPlaces":    1,
+    "units":            "deg"
+},
+{
+    "name":             "aos",
+    "shortDescription": "Angle of Sideslip",
+    "type":             "double",
+    "decimalPlaces":    1,
+    "units":            "deg"
+},
+{
     "name":             "windSpeed",
     "shortDescription": "Wind Speed",
     "type":             "double",
